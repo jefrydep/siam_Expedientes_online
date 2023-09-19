@@ -1,12 +1,40 @@
 @tailwind base;
 @tailwind components;
+
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --bgNavbar: rgb(21, 67, 96);
+  --bgHoverButtonLogin: rgb(31, 97, 141);
 }
+
+.navBar {
+  background-color: var(--bgNavbar);
+}
+.borderInput {
+  /* color: var(--bgNavbar); */
+  border-color: var(--bgNavbar);
+}
+.labelLogin {
+  color: var(--bgNavbar);
+}
+.bgButton {
+  background-color: var(--bgNavbar);
+  color: white;
+}
+.loginButton:hover {
+  background-color: var(--bgHoverButtonLogin);
+}
+.waveBg {
+  /* background-color: var(--bgHoverButtonLogin); */
+  fill: var(--bgHoverButtonLogin);
+}
+
+/* 
+
+
+
+   
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -24,4 +52,4 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-}
+} */
