@@ -1,3 +1,4 @@
+"use client";
 import useAxios from "@/components/hooks/useAxios";
 import Loader from "@/components/loader/Loader";
 import CustomButton from "@/components/ui/CustomButton";
@@ -8,7 +9,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const StartPage = () => {
-  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/18`;
+  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19`;
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
   const [companies, setCompanies] = useState<CompanyResponse[] | null>(data);
   const router = useRouter();
@@ -16,7 +17,7 @@ const StartPage = () => {
   useEffect(() => {
     setCompanies(data);
   }, [data]);
-  // console.log(data);
+  console.log(data);
   interface PropsSearch {
     nameCompany: string;
   }
@@ -34,6 +35,7 @@ const StartPage = () => {
     );
     setCompanies(dataFiltered || data);
   };
+  console.log(data);
   return (
     <CustomMolal isOpen={true}>
       <div className="bg-gray-100 rounded-lg w-[80rem] px-4  h-[95vh] overflow-scroll">

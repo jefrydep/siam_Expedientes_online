@@ -1,6 +1,6 @@
 "use client";
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
 import Swal from "sweetalert2";
@@ -10,19 +10,32 @@ import { useRouter } from "next/navigation";
 import { FaUserCircle } from "react-icons/fa";
 import CustomButton from "../ui/CustomButton";
 import RegisterForm from "./RegisterForm";
+import useAxios from "../hooks/useAxios";
+import time from "../../public/img/watch.svg";
+import news from "../../public/img/news.svg";
+import doc from "../../public/img/doc.svg";
+
+import Image from "next/image";
+import { CompanyResponse } from "@/interfaces/CompanyResponse";
+import Loader from "../loader/Loader";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string().required("Usuario es requerido"),
   ccpassword: Yup.string().required("Contraseña es requerida"),
 });
 
-interface LoginProps {
+interface PropsLogin {
   ide_eje: number;
 }
-const LoginForm = ({ ide_eje }: LoginProps) => {
+const LoginForm = ({ ide_eje }: PropsLogin) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [isRegister, setIsRegister] = useState(false);
 
+  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
+
+  const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
+
+  // console.log("------ ", data);
   const onLogin = async (
     { cidusuario, ccpassword, login, ide_eje }: ValuesLogin,
     actions: FormikHelpers<ValuesLogin>
@@ -44,9 +57,8 @@ const LoginForm = ({ ide_eje }: LoginProps) => {
 
         Swal.fire({
           confirmButtonColor: "#01DFD7",
-
           icon: "error",
-          title: "Oops...",
+          title: "Acceso no autorizado",
           text: "Credenciales incorrectas",
         });
         // seterror("Credenciales incorrectas");
@@ -55,7 +67,7 @@ const LoginForm = ({ ide_eje }: LoginProps) => {
           actions.resetForm();
         }, 2000);
       } else if (res?.ok) {
-        router.push("/home");
+        router.push("/dashboard/home");
 
         setIsLoading(false);
       }
@@ -68,25 +80,37 @@ const LoginForm = ({ ide_eje }: LoginProps) => {
   };
 
   return (
-    <div className=" pt-3 bg-white flex justify-center z-30">
-      <div className="flex flex-col md:flex-row">
-        <section className="bg-purple-400 px-2 py-4 shadow-2xl rounded-l-3xl">
-          <h4>Municipalidad provincial de Arequipa</h4>
+    <div className=" pt-3 relative flex-col md:flex-row     flex justify-center z-30">
+      {isLoading && <Loader />}
+
+      <div className="flex  w-full  md:w-auto flex-col md:flex-row">
+        <section className="bg-purple-400 px-2 py-4 shadow-2xl md:rounded-l-3xl">
+          <h4>{data && data[0].nom_eje}</h4>
+          <div>
+            {data && (
+              <img
+                src={`http://www.documentosvirtuales.com:3006/ppto/ejecutora/${ide_eje}/${data[0].pat_img}`}
+                alt=""
+              />
+            )}
+          </div>
           {/* <CustomButton
             nameButton="Seleccionar entidad ejecutora"
             color="bgButton"
           /> */}
         </section>
         <div
-          className={`px-2 bg-white rounded-r-3xl md:border   shadow-2xl  pb-9 ${
-            isRegister ? "md:w-[45rem]" : "md:w-[25rem]"
-          }  `}
+          className={`px-2 bg-white md:rounded-r-3xl md:border shadow-2xl pb-9
+         ${isRegister ? "md:w-[43rem]" : "md:w-[25rem]"}
+         transition-opacity duration-1000`}
         >
-          <div className="  m-3 flex justify-center">
-            <FaUserCircle size={75} color="green" />
+          <div className="  m-3 flex justify-center font-bold">
+            {/* <FaUserCircle size={75} color="green" /> */}
           </div>
-          <h3>¡Bienvenido!</h3>
-          <p>¡Bienvenido otra vez ! Por favor ingresa tus datos</p>
+          <h3 className="font-bold">
+            ¡Bienvenido! Por favor ingresa tus datos
+          </h3>
+
           {isRegister ? (
             <RegisterForm
               isRegister={isRegister}
@@ -102,7 +126,9 @@ const LoginForm = ({ ide_eje }: LoginProps) => {
               }}
               validationSchema={validationSchema}
               onSubmit={onLogin}
-              className="mt-4"
+              className={`mt-4 transition-opacity duration-1000 ${
+                isRegister ? "opacity-10" : "opacity-100"
+              }`}
             >
               <Form className="flex flex-col gap-5 px-2 py-5 z-30">
                 <label className="labelLogin font-bold" htmlFor="">

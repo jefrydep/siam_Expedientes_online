@@ -4,8 +4,8 @@
 @tailwind utilities;
 
 :root {
-  --bgNavbar: rgb(21, 67, 96);
-  --bgHoverButtonLogin: rgb(31, 97, 141);
+  --bgNavbar: rgb(175, 122, 197);
+  --bgHoverButtonLogin: rgb(136, 78, 160);
 }
 
 .navBar {
