@@ -34,8 +34,9 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
 
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
-
-  // console.log("------ ", data);
+  const nom_eje = data && data[0].nom_eje;
+  const pathImg = data && data[0].pat_img;
+  console.log("------ ", data);
   const onLogin = async (
     { cidusuario, ccpassword, login, ide_eje }: ValuesLogin,
     actions: FormikHelpers<ValuesLogin>
@@ -85,7 +86,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
 
       <div className="flex  w-full  md:w-auto flex-col md:flex-row">
         <section className="bg-purple-400 px-2 py-4 shadow-2xl md:rounded-l-3xl">
-          <h4>{data && data[0].nom_eje}</h4>
+          <h4>{nom_eje}</h4>
           <div>
             {data && (
               <img
@@ -113,8 +114,11 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
 
           {isRegister ? (
             <RegisterForm
+              path_img={pathImg}
+              ide_eje={ide_eje}
               isRegister={isRegister}
               setIsRegister={handleIsRegisterChange}
+              nom_eje={nom_eje!}
             />
           ) : (
             <Formik

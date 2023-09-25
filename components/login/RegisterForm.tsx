@@ -1,64 +1,81 @@
 "use client";
-import { Field, Form, Formik, FormikHelpers, useFormikContext } from "formik";
+import {
+  ErrorMessage,
+  Field,
+  Form,
+  Formik,
+  FormikHelpers,
+  useFormikContext,
+} from "formik";
 import React, { useState } from "react";
 import CustomButton from "../ui/CustomButton";
 import * as Yup from "yup";
 import { FiSearch } from "react-icons/fi";
 import axios from "axios";
 import Swal from "sweetalert2";
+import useRegisterUser from "../hooks/useRegisterUser";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string().required("Usuario es requerido"),
-  ccpassword: Yup.string().required("Contraseña es requerida"),
+
+  firstEmail: Yup.string()
+    .required("Email es requerido")
+    .email("Ingresa un correo electrónico válido"),
+  secondEmail: Yup.string()
+    .required("Repite el Email")
+    .nullable()
+    .email("Ingresa un correo electrónico válido")
+    .oneOf([Yup.ref("firstEmail"), null], "Los correos deben coincidir"),
+  firstPassword: Yup.string().required("Contraseña es requerida"),
+  // .min(6, "La contraseña debe tener al menos 6 caracteres"),
+  secondPassword: Yup.string()
+    .nullable()
+    .oneOf([Yup.ref("firstPassword"), null], "las contraseñas deben coincidir"),
 });
 
 interface RegisterFormProps {
   isRegister: boolean;
   setIsRegister: (value: boolean) => void;
+  ide_eje: number;
+  nom_eje: string;
+  path_img: string;
 }
-const RegisterForm = ({ isRegister, setIsRegister }: RegisterFormProps) => {
+const RegisterForm = ({
+  isRegister,
+  setIsRegister,
+  ide_eje,
+  nom_eje,
+  path_img,
+}: RegisterFormProps) => {
+  const { searchDniFromReniec, onRegisterForm } = useRegisterUser(
+    ide_eje,
+    nom_eje
+  );
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-  const searchDniFromReniec = async (cidUser: string, setFieldValue: any) => {
-    console.log(cidUser);
-
-    console.log("hola");
-
-    try {
-      const res = await axios.get(
-        `${API_URL}/tramite/funciones/fn_busca_persona_desde_solicita_cta/${cidUser}`
-      );
-      const data = res.data;
-      console.log(data);
-      if (data.est_ado) {
-        const newUser = data.met_dat.nom_per;
-        const firstLastName = data.met_dat.pat_per;
-        const secondLastName = data.met_dat.mat_per;
-        setFieldValue("userName", newUser);
-        setFieldValue("firstLastName", firstLastName);
-        setFieldValue("secondLastName", secondLastName);
-      } else {
-        Swal.fire(`${data.mes_age}`);
-      }
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
   // console.log(cidUser.length);
-  const onLogin = () => {};
+  console.log(ide_eje);
+  console.log(nom_eje);
   return (
     <div className="z-30">
       <Formik
         initialValues={{
+          ide_doc: 0,
           cidusuario: "",
           userName: "",
           firstLastName: "",
           secondLastName: "",
+          firstNumberPhone: "",
+          secondNumberPhone: "",
+          firstEmail: "",
+          secondEmail: "",
+          firstPassword: "",
+          secondPassword: "",
           login: "solicita_cta",
+          birthdayDate: "",
+          url_img: `http://www.documentosvirtuales.com:3006/ppto/ejecutora/${ide_eje}/${path_img}`,
           //   ide_eje: ide_eje,
         }}
         validationSchema={validationSchema}
-        onSubmit={onLogin}
+        onSubmit={onRegisterForm}
         validateOnBlur={false}
         // validateOnChange={true}
         className="mt-4"
@@ -132,57 +149,118 @@ const RegisterForm = ({ isRegister, setIsRegister }: RegisterFormProps) => {
                     // disabled={cidUser.length === 11}
                   />
                 </div>
+                <div className="flex flex-col gap-1">
+                  <label className="labelLogin font-bold">
+                    Fecha de nacimiento
+                  </label>
+                  <Field
+                    name="birthdayDate"
+                    type="text"
+                    placeholder="31/07/1995"
+                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+
+                    // disabled={cidUser.length === 11}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="labelLogin font-bold">ide_doc</label>
+                  <Field
+                    name="ide_doc"
+                    type="text"
+                    placeholder="Perez"
+                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+
+                    // disabled={cidUser.length === 11}
+                  />
+                </div>
               </>
               {/* )} */}
 
               <div className="flex flex-col gap-1">
                 <label className="labelLogin font-bold">Celular</label>
                 <Field
-                  name="ccpassword"
+                  name="firstNumberPhone"
                   type="text"
-                  placeholder="Juancito Perez"
+                  placeholder="958658475"
                   className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Celular</label>
+                <label className="labelLogin font-bold">Celular2</label>
                 <Field
-                  name="ccpassword"
+                  name="secondNumberPhone"
                   type="text"
-                  placeholder="Juancito Perez"
+                  placeholder="987458645"
                   className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                 />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="labelLogin font-bold">Email</label>
                 <Field
-                  name="ccpassword"
+                  name="firstEmail"
                   type="text"
                   placeholder="Juancito Perez"
                   className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                />
+                <ErrorMessage
+                  name="firstEmail"
+                  component="div"
+                  className="text-red-500 font-bold"
                 />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="labelLogin font-bold">Repertir Email</label>
                 <Field
-                  name="ccpassword"
+                  name="secondEmail"
                   type="text"
                   placeholder="Juancito Perez"
                   className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                 />
+                <ErrorMessage
+                  name="secondEmail"
+                  component="div"
+                  className="text-red-500 font-bold"
+                />
               </div>
-              {/* <div className="flex flex-col gap-1">
-              <label className="labelLogin font-bold">Observación</label>
-              <Field
-                rows="4"
-                cols="20"
-                as="textarea"
-                name="ccpassword"
-                type="text"
-                placeholder="Juancito Perez"
-                className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-              />
-            </div> */}
+              <div className="flex flex-col gap-1">
+                <label className="labelLogin font-bold">Contraseña</label>
+                <Field
+                  name="firstPassword"
+                  type="text"
+                  placeholder="Juancito Perez"
+                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                />
+                <ErrorMessage
+                  name="firstPassword"
+                  component="div"
+                  className="text-red-500 font-bold"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="labelLogin font-bold">
+                  Repetir Contraseña
+                </label>
+                <Field
+                  name="secondPassword"
+                  type="text"
+                  placeholder="Juancito Perez"
+                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                />
+                <ErrorMessage
+                  name="secondPassword"
+                  component="div"
+                  className="text-red-500 font-bold"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="labelLogin font-bold">url Image</label>
+                <Field
+                  name="url_img"
+                  type="text"
+                  placeholder="httt://img"
+                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                />
+              </div>
             </section>
             <div className="flex flex-col px-2 ">
               <CustomButton nameButton="Registrarse" color="bgButton" />
