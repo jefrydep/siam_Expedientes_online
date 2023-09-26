@@ -36,6 +36,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
   const nom_eje = data && data[0].nom_eje;
   const pathImg = data && data[0].pat_img;
+  console.log(pathImg);
   console.log("------ ", data);
   const onLogin = async (
     { cidusuario, ccpassword, login, ide_eje }: ValuesLogin,
@@ -82,7 +83,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
 
   return (
     <div className=" pt-3 relative flex-col md:flex-row     flex justify-center z-30">
-      {isLoading && <Loader />}
+      {isLoading || (loading && <Loader />)}
 
       <div className="flex  w-full  md:w-auto flex-col md:flex-row">
         <section className="bg-purple-400 px-2 py-4 shadow-2xl md:rounded-l-3xl">
@@ -114,7 +115,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
 
           {isRegister ? (
             <RegisterForm
-              path_img={pathImg}
+              path_img={pathImg && pathImg}
               ide_eje={ide_eje}
               isRegister={isRegister}
               setIsRegister={handleIsRegisterChange}

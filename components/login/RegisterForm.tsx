@@ -15,8 +15,22 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import useRegisterUser from "../hooks/useRegisterUser";
 const validationSchema = Yup.object().shape({
-  cidusuario: Yup.string().required("Usuario es requerido"),
+  cidusuario: Yup.string()
+    .required("Número DNI/RUC es requerido")
+    .test("len", "El número debe tener 8 u 11 dígitos", function (val) {
+      if (val) {
+        const valCleaned = val.trim();
+        return (
+          (valCleaned.length === 8 || valCleaned.length === 11) &&
+          /^\d+$/.test(valCleaned)
+        );
+      }
 
+      return false;
+    }) as Yup.StringSchema<string>,
+  userName: Yup.string().required("Nombre es requerido"),
+  birthdayDate: Yup.string().required("Fecha es requerida"),
+  firstNumberPhone: Yup.string().required("Número  es requerido"),
   firstEmail: Yup.string()
     .required("Email es requerido")
     .email("Ingresa un correo electrónico válido"),
@@ -28,6 +42,7 @@ const validationSchema = Yup.object().shape({
   firstPassword: Yup.string().required("Contraseña es requerida"),
   // .min(6, "La contraseña debe tener al menos 6 caracteres"),
   secondPassword: Yup.string()
+    .required("Repite la contraseña")
     .nullable()
     .oneOf([Yup.ref("firstPassword"), null], "las contraseñas deben coincidir"),
 });
@@ -46,14 +61,14 @@ const RegisterForm = ({
   nom_eje,
   path_img,
 }: RegisterFormProps) => {
-  const { searchDniFromReniec, onRegisterForm } = useRegisterUser(
+  const { searchDniFromReniec, onRegisterForm, docNumber } = useRegisterUser(
     ide_eje,
     nom_eje
   );
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   // console.log(cidUser.length);
   console.log(ide_eje);
   console.log(nom_eje);
+  console.log(docNumber?.length);
   return (
     <div className="z-30">
       <Formik
@@ -90,10 +105,11 @@ const RegisterForm = ({
                 </label>
                 <div className="relative">
                   <span
-                    // onClick={searchDniFromReniec}
+                    onClick={() =>
+                      searchDniFromReniec(values.cidusuario, setFieldValue)
+                    }
                     className="absolute left-3 top-2 text-gray-500"
                   >
-                    {/* Aquí puedes agregar el icono */}
                     <FiSearch size={20} />
                   </span>
                   <Field
@@ -107,74 +123,93 @@ const RegisterForm = ({
                       searchDniFromReniec(values.cidusuario, setFieldValue)
                     }
                   />
+                  <ErrorMessage
+                    name="cidusuario"
+                    component="div"
+                    className="text-red-500 font-bold"
+                  />
                 </div>
               </div>
-              {/* {cidUser.length >= 8 && ( */}
-              <>
-                <div className="flex flex-col gap-1">
-                  <label className="labelLogin font-bold">Nombre</label>
-                  <Field
-                    name="userName"
-                    id="userName"
-                    type="text"
-                    // value={userName}
-                    placeholder="Lucas"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                  />
-                </div>
+              {docNumber && docNumber.length >= 8 && (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <label className="labelLogin font-bold">Nombre</label>
+                    <Field
+                      name="userName"
+                      id="userName"
+                      type="text"
+                      // value={userName}
+                      placeholder="Lucas"
+                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                    />
+                    <ErrorMessage
+                      name="userName"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                  {docNumber?.length !== 11 && (
+                    <>
+                      <div className="flex flex-col gap-1">
+                        <label className="labelLogin font-bold">
+                          Apellido Paterno
+                        </label>
+                        <Field
+                          name="firstLastName"
+                          type="text"
+                          placeholder="Luna"
+                          className="   focus:outline-none   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
 
-                <div className="flex flex-col gap-1">
-                  <label className="labelLogin font-bold">
-                    Apellido Paterno
-                  </label>
-                  <Field
-                    name="firstLastName"
-                    type="text"
-                    placeholder="Luna"
-                    className="   focus:outline-none   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
+                          // disabled={cidUser.length === 11}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="labelLogin font-bold">
+                          Apellido Materno
+                        </label>
+                        <Field
+                          name="secondLastName"
+                          type="text"
+                          placeholder="Perez"
+                          className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
 
-                    // disabled={cidUser.length === 11}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="labelLogin font-bold">
-                    Apellido Materno
-                  </label>
-                  <Field
-                    name="secondLastName"
-                    type="text"
-                    placeholder="Perez"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                          // disabled={cidUser.length === 11}
+                        />
+                      </div>
+                    </>
+                  )}
 
-                    // disabled={cidUser.length === 11}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="labelLogin font-bold">
-                    Fecha de nacimiento
-                  </label>
-                  <Field
-                    name="birthdayDate"
-                    type="text"
-                    placeholder="31/07/1995"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                  <div className="   hidden flex-col gap-1">
+                    <label className="labelLogin font-bold">ide_doc</label>
+                    <Field
+                      name="ide_doc"
+                      type="text"
+                      placeholder="Perez"
+                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
 
-                    // disabled={cidUser.length === 11}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="labelLogin font-bold">ide_doc</label>
-                  <Field
-                    name="ide_doc"
-                    type="text"
-                    placeholder="Perez"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      // disabled={cidUser.length === 11}
+                    />
+                  </div>
+                </>
+              )}
+              <div className="flex flex-col gap-1">
+                <label className="labelLogin font-bold">
+                  Fecha de nacimiento/Creación
+                </label>
+                <Field
+                  name="birthdayDate"
+                  type="date"
+                  placeholder="31/07/1995"
+                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
 
-                    // disabled={cidUser.length === 11}
-                  />
-                </div>
-              </>
-              {/* )} */}
+                  // disabled={cidUser.length === 11}
+                />
+                <ErrorMessage
+                  name="birthdayDate"
+                  component="div"
+                  className="text-red-500 font-bold"
+                />
+              </div>
 
               <div className="flex flex-col gap-1">
                 <label className="labelLogin font-bold">Celular</label>
@@ -183,6 +218,11 @@ const RegisterForm = ({
                   type="text"
                   placeholder="958658475"
                   className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                />
+                <ErrorMessage
+                  name="firstNumberPhone"
+                  component="div"
+                  className="text-red-500 font-bold"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -252,7 +292,7 @@ const RegisterForm = ({
                   className="text-red-500 font-bold"
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className=" hidden flex-col gap-1">
                 <label className="labelLogin font-bold">url Image</label>
                 <Field
                   name="url_img"

@@ -21,8 +21,8 @@ export const isEmailValid = async (email: string) => {
   );
   return res;
 };
-export const getCodeToConfirm = async (
-  p_ide_per: number,
+export const createNewProfile = async (
+  p_ide_per: number | undefined = undefined,
   p_cod_con: string | undefined = undefined,
   profile: CreateProfile
 ) => {

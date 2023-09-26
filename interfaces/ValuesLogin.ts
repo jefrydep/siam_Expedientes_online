@@ -10,7 +10,7 @@ export interface CreateProfile {
   nom_per: string;
   pat_per: string;
   mat_per: string;
-  fch_nac: Date;
+  fch_nac: string;
   cor_ele: string;
   pas_log: string;
   pas_log_rep: string;
