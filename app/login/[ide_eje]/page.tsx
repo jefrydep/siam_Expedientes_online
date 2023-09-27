@@ -95,31 +95,14 @@ const LoginPage = ({ params }: { params: { ide_eje: number } }) => {
       <h2 className="text-center text-sm">
         Antes de realizar su trámite, lea las siguintes consideraciones.
       </h2> */}
-      <div className="  flex-col  lg:flex-row justify-around  items-center content-center justify-items-center z-30 relative   px-2 py-2 flex">
+      <div className="   ">
         {/* <h1 className=" text-center  ">
         Bienvenidos al Sistema de Gestión Documental - SGD
       </h1>
       <h2 className="text-center text-sm">
         Antes de realizar su trámite, lea las siguintes consideraciones.
       </h2> */}
-        <div className="">
-          <Article
-            imgPath={time}
-            subtitle="Horario de Atencion"
-            title="Consideración N°1"
-            content=" La presentación de documentos a través de nuestra plataforma
-                virtual, se realizará de acuerdo a nuestro horario de atención
-                al usuario: 8:00am - 4:00pm de Lunes a Viernes."
-          />
-          <Article
-            imgPath={news}
-            subtitle="Información registrada"
-            title="Consideración N°2"
-            content=" Como usuario registrado de este servicio, será responsable del
-            contenido y registro de la información que presente. Estos
-            tienen carácter de declaración jurada."
-          />
-        </div>
+
         <LoginForm ide_eje={ide_eje} />
         {/* <Article
           imgPath={doc}

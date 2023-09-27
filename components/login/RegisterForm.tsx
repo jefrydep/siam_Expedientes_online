@@ -11,9 +11,8 @@ import React, { useState } from "react";
 import CustomButton from "../ui/CustomButton";
 import * as Yup from "yup";
 import { FiSearch } from "react-icons/fi";
-import axios from "axios";
-import Swal from "sweetalert2";
 import useRegisterUser from "../hooks/useRegisterUser";
+import Loader from "../loader/Loader";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string()
     .required("Número DNI/RUC es requerido")
@@ -40,12 +39,13 @@ const validationSchema = Yup.object().shape({
     .email("Ingresa un correo electrónico válido")
     .oneOf([Yup.ref("firstEmail"), null], "Los correos deben coincidir"),
   firstPassword: Yup.string().required("Contraseña es requerida"),
-  // .min(6, "La contraseña debe tener al menos 6 caracteres"),
+
   secondPassword: Yup.string()
     .required("Repite la contraseña")
     .nullable()
     .oneOf([Yup.ref("firstPassword"), null], "las contraseñas deben coincidir"),
 });
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 interface RegisterFormProps {
   isRegister: boolean;
@@ -61,16 +61,22 @@ const RegisterForm = ({
   nom_eje,
   path_img,
 }: RegisterFormProps) => {
-  const { searchDniFromReniec, onRegisterForm, docNumber } = useRegisterUser(
-    ide_eje,
-    nom_eje
-  );
+  const {
+    searchDniFromReniec,
+    onRegisterForm,
+    docNumber,
+    isExistPerson,
+    isLoadingRegister,
+  } = useRegisterUser(ide_eje, nom_eje);
   // console.log(cidUser.length);
-  console.log(ide_eje);
-  console.log(nom_eje);
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  console.log("existe persona ", isExistPerson);
+  // console.log(ide_eje);
+  // console.log(nom_eje);
   console.log(docNumber?.length);
   return (
     <div className="z-30">
+      {isLoadingRegister && <Loader />}
       <Formik
         initialValues={{
           ide_doc: 0,
@@ -98,201 +104,228 @@ const RegisterForm = ({
       >
         {({ values, setFieldValue }) => (
           <Form>
-            <section className="flex flex-col sm:grid sm:grid-cols-2 gap-5 px-2 py-5">
-              <div className="flex flex-col gap-1 relative">
-                <label className="labelLogin font-bold" htmlFor="">
-                  DNI/RUC
-                </label>
-                <div className="relative">
-                  <span
-                    onClick={() =>
-                      searchDniFromReniec(values.cidusuario, setFieldValue)
-                    }
-                    className="absolute left-3 top-2 text-gray-500"
-                  >
-                    <FiSearch size={20} />
-                  </span>
+            <section className="mb-5 ">
+              <h2 className="font-bold ">Información de Contacto</h2>
+              <div className="flex flex-col lg:grid xl:grid xl:grid-cols-3 lg:grid-cols-2 gap-2 px-2 py-5">
+                <div className="flex flex-col  relative">
+                  <label className="labelLogin font-bold" htmlFor="">
+                    DNI/RUC
+                  </label>
+                  <div className="relative">
+                    <span
+                      title="Buscar Datos"
+                      onClick={() =>
+                        searchDniFromReniec(values.cidusuario, setFieldValue)
+                      }
+                      className="absolute left-3 top-2 cursor-pointer text-gray-500 hover:text-blue-500"
+                    >
+                      <FiSearch size={20} />
+                    </span>
+                    <Field
+                      type="number"
+                      placeholder="Busca tu DNI"
+                      name="cidusuario"
+                      autoComplete="cidusuario"
+                      className="focus:outline-none appearance-none border borderInput focus:ring-1 w-full px-10 py-2 rounded-3xl"
+                      onBlur={() =>
+                        searchDniFromReniec(values.cidusuario, setFieldValue)
+                      }
+                    />
+                    <ErrorMessage
+                      name="cidusuario"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                </div>
+                {docNumber && docNumber.length >= 8 && (
+                  <>
+                    <div className="flex flex-col ">
+                      <label className="labelLogin font-bold">Nombre</label>
+                      <Field
+                        name="userName"
+                        id="userName"
+                        type="text"
+                        // value={userName}
+                        disabled={isExistPerson}
+                        placeholder="Lucas"
+                        className=" uppercase   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                        maxLength={20}
+                      />
+                      <ErrorMessage
+                        name="userName"
+                        component="div"
+                        className="text-red-500 font-bold"
+                      />
+                    </div>
+                    {docNumber?.length === 8 && (
+                      <>
+                        <div className="flex flex-col ">
+                          <label className="labelLogin font-bold">
+                            Apellido Paterno
+                          </label>
+                          <Field
+                            name="firstLastName"
+                            type="text"
+                            placeholder="Luna"
+                            className="   focus:outline-none uppercase   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
+                            disabled={isExistPerson}
+                            maxLength={20}
+                          />
+                        </div>
+                        <div className="flex flex-col ">
+                          <label className="labelLogin font-bold">
+                            Apellido Materno
+                          </label>
+                          <Field
+                            name="secondLastName"
+                            type="text"
+                            placeholder="Quispe"
+                            className="   focus:outline-none border uppercase borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                            disabled={isExistPerson}
+                            maxLength={20}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="   hidden flex-col ">
+                      <label className="labelLogin font-bold">ide_doc</label>
+                      <Field
+                        name="ide_doc"
+                        type="text"
+                        placeholder="Perez"
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+
+                        // disabled={cidUser.length === 11}
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="flex flex-col ">
+                  <label className="labelLogin font-bold">
+                    {docNumber && docNumber?.length >= 9
+                      ? "Fecha de creacion"
+                      : "Fecha de nacimiento"}
+                  </label>
                   <Field
-                    type="text"
-                    placeholder="Busca tu DNI"
-                    name="cidusuario"
-                    autoComplete="cidusuario"
-                    // onChange={(e: any) => setCidUser(e.target.value.trim())}
-                    className="focus:outline-none border borderInput focus:ring-1 px-10 py-2 rounded-3xl"
-                    onBlur={() =>
-                      searchDniFromReniec(values.cidusuario, setFieldValue)
-                    }
+                    name="birthdayDate"
+                    type="date"
+                    placeholder="20/02/1969"
+                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                    disabled={isExistPerson}
+                    max="2099-12-12"
+                    min="1900-12-12"
                   />
                   <ErrorMessage
-                    name="cidusuario"
+                    name="birthdayDate"
+                    component="div"
+                    className="text-red-500 font-bold"
+                  />
+                </div>
+
+                <div className="flex flex-col ">
+                  <label className="labelLogin font-bold">Celular</label>
+                  <Field
+                    name="firstNumberPhone"
+                    type="number"
+                    placeholder="958658475"
+                    className=" appearance-none   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                  />
+                  <ErrorMessage
+                    name="firstNumberPhone"
+                    component="div"
+                    className="text-red-500 font-bold"
+                  />
+                </div>
+                <div className="flex flex-col ">
+                  <label className="labelLogin font-bold">Celular2</label>
+                  <Field
+                    name="secondNumberPhone"
+                    type="number"
+                    placeholder="987458645"
+                    className=" appearance-none  focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                  />
+                </div>
+                <div className="flex flex-col ">
+                  <label className="labelLogin font-bold">Email</label>
+                  <Field
+                    name="firstEmail"
+                    type="email"
+                    placeholder="jefrydep@gmail.com"
+                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                  />
+                  <ErrorMessage
+                    name="firstEmail"
+                    component="div"
+                    className="text-red-500 font-bold"
+                  />
+                </div>
+                <div className="flex flex-col ">
+                  <label className="labelLogin font-bold">Repertir Email</label>
+                  <Field
+                    name="secondEmail"
+                    type="email"
+                    placeholder="jefrydep@gmail.com"
+                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                  />
+                  <ErrorMessage
+                    name="secondEmail"
                     component="div"
                     className="text-red-500 font-bold"
                   />
                 </div>
               </div>
-              {docNumber && docNumber.length >= 8 && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <label className="labelLogin font-bold">Nombre</label>
-                    <Field
-                      name="userName"
-                      id="userName"
-                      type="text"
-                      // value={userName}
-                      placeholder="Lucas"
-                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                    />
+              <section className="mb-5">
+                <h2 className="font-bold mb-3">Credenciales de Acceso</h2>
+                <div className="  w-full">
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">Contraseña</label>
+                    <div className="relative w-full">
+                      <Field
+                        name="firstPassword"
+                        type={`${isShowPassword ? "text" : "password"}`}
+                        placeholder="**************"
+                        className="   focus:outline-none border borderInput focus:ring-1 w-full   px-10 py-2 rounded-3xl "
+                      />
+                      <span
+                        title="Mostrar u ocultar contraseña"
+                        onClick={() => setIsShowPassword(!isShowPassword)}
+                        className="absolute  text-gray-400  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-blue-500"
+                      >
+                        {!isShowPassword ? (
+                          <AiFillEye size={25} />
+                        ) : (
+                          <AiFillEyeInvisible size={25} />
+                        )}
+                      </span>
+                    </div>
                     <ErrorMessage
-                      name="userName"
+                      name="firstPassword"
                       component="div"
                       className="text-red-500 font-bold"
                     />
                   </div>
-                  {docNumber?.length !== 11 && (
-                    <>
-                      <div className="flex flex-col gap-1">
-                        <label className="labelLogin font-bold">
-                          Apellido Paterno
-                        </label>
-                        <Field
-                          name="firstLastName"
-                          type="text"
-                          placeholder="Luna"
-                          className="   focus:outline-none   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
-
-                          // disabled={cidUser.length === 11}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="labelLogin font-bold">
-                          Apellido Materno
-                        </label>
-                        <Field
-                          name="secondLastName"
-                          type="text"
-                          placeholder="Perez"
-                          className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-
-                          // disabled={cidUser.length === 11}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <div className="   hidden flex-col gap-1">
-                    <label className="labelLogin font-bold">ide_doc</label>
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">
+                      Repetir Contraseña
+                    </label>
                     <Field
-                      name="ide_doc"
-                      type="text"
-                      placeholder="Perez"
+                      name="secondPassword"
+                      type={`${isShowPassword ? "text" : "password"}`}
+                      placeholder="***************"
                       className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-
-                      // disabled={cidUser.length === 11}
+                    />
+                    <ErrorMessage
+                      name="secondPassword"
+                      component="div"
+                      className="text-red-500 font-bold"
                     />
                   </div>
-                </>
-              )}
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">
-                  Fecha de nacimiento/Creación
-                </label>
-                <Field
-                  name="birthdayDate"
-                  type="date"
-                  placeholder="31/07/1995"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                </div>
+              </section>
 
-                  // disabled={cidUser.length === 11}
-                />
-                <ErrorMessage
-                  name="birthdayDate"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Celular</label>
-                <Field
-                  name="firstNumberPhone"
-                  type="text"
-                  placeholder="958658475"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-                <ErrorMessage
-                  name="firstNumberPhone"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Celular2</label>
-                <Field
-                  name="secondNumberPhone"
-                  type="text"
-                  placeholder="987458645"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Email</label>
-                <Field
-                  name="firstEmail"
-                  type="text"
-                  placeholder="Juancito Perez"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-                <ErrorMessage
-                  name="firstEmail"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Repertir Email</label>
-                <Field
-                  name="secondEmail"
-                  type="text"
-                  placeholder="Juancito Perez"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-                <ErrorMessage
-                  name="secondEmail"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">Contraseña</label>
-                <Field
-                  name="firstPassword"
-                  type="text"
-                  placeholder="Juancito Perez"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-                <ErrorMessage
-                  name="firstPassword"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="labelLogin font-bold">
-                  Repetir Contraseña
-                </label>
-                <Field
-                  name="secondPassword"
-                  type="text"
-                  placeholder="Juancito Perez"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-                <ErrorMessage
-                  name="secondPassword"
-                  component="div"
-                  className="text-red-500 font-bold"
-                />
-              </div>
-              <div className=" hidden flex-col gap-1">
+              <div className=" hidden flex-col ">
                 <label className="labelLogin font-bold">url Image</label>
                 <Field
                   name="url_img"

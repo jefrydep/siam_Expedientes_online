@@ -18,6 +18,7 @@ import doc from "../../public/img/doc.svg";
 import Image from "next/image";
 import { CompanyResponse } from "@/interfaces/CompanyResponse";
 import Loader from "../loader/Loader";
+import Article from "./Article";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string().required("Usuario es requerido"),
   ccpassword: Yup.string().required("Contraseña es requerida"),
@@ -84,11 +85,30 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   return (
     <div className=" pt-3 relative flex-col md:flex-row     flex justify-center z-30">
       {isLoading || (loading && <Loader />)}
-
-      <div className="flex  w-full  md:w-auto flex-col md:flex-row">
-        <section className="bg-purple-400 px-2 py-4 shadow-2xl md:rounded-l-3xl">
-          <h4>{nom_eje}</h4>
-          <div>
+      {!isRegister && (
+        <div className="">
+          <Article
+            imgPath={time}
+            subtitle="Horario de Atencion"
+            title="Consideración N°1"
+            content=" La presentación de documentos a través de nuestra plataforma
+                virtual, se realizará de acuerdo a nuestro horario de atención
+                al usuario: 8:00am - 4:00pm de Lunes a Viernes."
+          />
+          <Article
+            imgPath={news}
+            subtitle="Información registrada"
+            title="Consideración N°2"
+            content=" Como usuario registrado de este servicio, será responsable del
+            contenido y registro de la información que presente. Estos
+            tienen carácter de declaración jurada."
+          />
+        </div>
+      )}
+      <div className="flex  flex-col w-full  xl:w-auto xl:flex-row">
+        <section className="bg-purple-400 px-2   py-4 flex-col  shadow-2xl lg:rounded-l-3xl">
+          <h4 className="text-center mb-3 font-bold">{nom_eje}</h4>
+          <div className="w-full flex justify-center">
             {data && (
               <img
                 src={`http://www.documentosvirtuales.com:3006/ppto/ejecutora/${ide_eje}/${data[0].pat_img}`}
@@ -103,19 +123,19 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
         </section>
         <div
           className={`px-2 bg-white md:rounded-r-3xl md:border shadow-2xl pb-9
-         ${isRegister ? "md:w-[43rem]" : "md:w-[25rem]"}
+         ${isRegister ? "xl:max-w-[68rem] md:w-full " : "xl:w-[25rem]"}
          transition-opacity duration-1000`}
         >
           <div className="  m-3 flex justify-center font-bold">
             {/* <FaUserCircle size={75} color="green" /> */}
           </div>
-          <h3 className="font-bold">
+          <h3 className="font-bold text-center">
             ¡Bienvenido! Por favor ingresa tus datos
           </h3>
 
           {isRegister ? (
             <RegisterForm
-              path_img={pathImg && pathImg}
+              path_img={pathImg! && pathImg}
               ide_eje={ide_eje}
               isRegister={isRegister}
               setIsRegister={handleIsRegisterChange}
