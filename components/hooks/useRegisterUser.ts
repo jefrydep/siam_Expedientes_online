@@ -111,7 +111,9 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
       }
     }
   };
-
+  const handleRefresh = () => {
+    window.location.reload();
+  };
   const onRegisterForm = async ({
     cidusuario,
     userName,
@@ -233,6 +235,7 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
                 });
               }
             } else {
+              handleRefresh();
               break;
             }
           }
@@ -352,6 +355,7 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
                 });
               }
             } else {
+              handleRefresh();
               break;
             }
           }

@@ -32,3 +32,15 @@ export const createNewProfile = async (
   );
   return res;
 };
+
+export const findAcount = async (
+  ide_eje: number,
+  ruc_eje: number,
+  user_log: number,
+  user_email: string
+) => {
+  const res = await axios.get(
+    `${API_URL}/siam/usuarios/reset-password/${ide_eje}/${ruc_eje}/${user_log}/${user_email}`
+  );
+  return res;
+};
