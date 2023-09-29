@@ -1,6 +1,7 @@
 import { newPerson } from "@/interfaces/RegisterValues";
 import { CreateProfile } from "@/interfaces/ValuesLogin";
 import axios from "axios";
+import { number, string } from "yup";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const getInfoUser = async (nro_doc: string) => {
   const res = await axios.get(
@@ -42,5 +43,23 @@ export const findAcount = async (
   const res = await axios.get(
     `${API_URL}/siam/usuarios/reset-password/${ide_eje}/${ruc_eje}/${user_log}/${user_email}`
   );
+  return res;
+};
+export const verifyEmailCode = async (ide_sol: number, code_email: number) => {
+  const res = await axios.get(
+    `${API_URL}/siam/usuarios/verifica-codigo/${ide_sol}/${code_email}`
+  );
+  return res;
+};
+export const changeNewPassword = async (
+  token: string,
+  pas_log: string,
+  pas_log_rep: string
+) => {
+  const res = await axios.patch(`${API_URL}/siam/usuarios/solicita_cta`, {
+    token,
+    pas_log,
+    pas_log_rep,
+  });
   return res;
 };

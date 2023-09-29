@@ -23,7 +23,7 @@ import CustomMolal from "../ui/CustomModal";
 import CustomModal from "../ui/CustomModal";
 import { MdCancel, MdMoreVert } from "react-icons/md";
 import useRecoverPassword from "../hooks/useRecoverPassword";
-import { findAcount } from "@/utils/users";
+import { changeNewPassword, findAcount, verifyEmailCode } from "@/utils/users";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string().required("Usuario es requerido"),
   ccpassword: Yup.string().required("Contraseña es requerida"),
@@ -41,7 +41,12 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const [userDoc, setUserDoc] = useState<number>(0);
   const [userEmail, setuserEmail] = useState<string>("");
   const [userConfirmcode, setUserConfirmcode] = useState<number>(0);
-  const [setsolUserId, setSetsolUserId] = useState<number>();
+  const [solUserId, setSolUserId] = useState<number>();
+  const [codeEmail, setCodeEmail] = useState<number>();
+  const [usertoken, setUsertoken] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [newPassworAgain, setNewPassworAgain] = useState<string>("");
+
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
 
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
@@ -50,15 +55,8 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const ruc_eje = data && data[0]?.ruc_eje;
   console.log(pathImg);
   console.log("------ ", data);
-
-  // const { findUserAcount } = useRecoverPassword(
-  //   ide_eje,
-  //   ruc_eje,
-  //   userDoc,
-  //   userEmail
-  // );
-  // Resto de tu código aquí...
-
+  console.log(userConfirmcode);
+  console.log(usertoken);
   const onLogin = async (
     { cidusuario, ccpassword, login, ide_eje }: ValuesLogin,
     actions: FormikHelpers<ValuesLogin>
@@ -84,7 +82,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
           title: "Acceso no autorizado",
           text: "Credenciales incorrectas",
         });
-        // seterror("Credenciales incorrectas");
+
         setTimeout(() => {
           //   seterror("");
           actions.resetForm();
@@ -116,26 +114,97 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   };
 
   const findUserAcount = async () => {
-    if (ruc_eje !== null && userDoc !== undefined && userEmail) {
-      const user = await findAcount(ide_eje, ruc_eje, userDoc, userEmail);
-      const { data } = user;
-      if (data.est_ado) {
-        setsolUserId(data.met_dat.ide_sol);
-        await Swal.fire(
-          "Mensaje",
-          data.mes_age +
-            "<br><br>Por favor, introduzca el código de confirmación que ha sido enviado a su correo electrónico.",
-          "success"
-        );
-      } else {
-        await Swal.fire("Mensaje", data.mes_age, "info");
+    try {
+      if (ruc_eje !== null && userDoc !== undefined && userEmail) {
+        setIsLoading(true);
+        const user = await findAcount(ide_eje, ruc_eje, userDoc, userEmail);
+        const { data } = user;
+        setIsLoading(false);
+
+        if (data?.est_ado) {
+          setSolUserId(data.met_dat.ide_sol);
+          const result = await Swal.fire(
+            "Mensaje",
+            data.mes_age +
+              "<br><br>Por favor, introduzca el código de confirmación que ha sido enviado a su correo electrónico.",
+            "success"
+          );
+
+          console.log(result.value);
+          setCodeEmail(result.value);
+        } else {
+          await Swal.fire("Mensaje", data.mes_age, "info");
+        }
       }
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
+  const verifyCode = async () => {
+    try {
+      if (solUserId && codeEmail) {
+        setIsLoading(true);
+        const isVerify = await verifyEmailCode(solUserId, userConfirmcode);
+        const { data } = isVerify;
+        setIsLoading(false);
+        if (data.est_ado) {
+          await Swal.fire("Mensaje", data.mes_age, "info");
+          // setSolUserId(0);
+
+          setUsertoken(data.met_dat.token);
+          console.log(usertoken);
+        } else {
+          Swal.fire("Mensaje", data.mes_age, "info");
+        }
+        console.log(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const onChangePassword = async () => {
+    try {
+      if (usertoken && newPassword && newPassworAgain) {
+        if (newPassword !== newPassworAgain) {
+          Swal.fire("Mensaje", "Las contraseñas no coinciden", "info");
+          return;
+        }
+
+        console.log(usertoken, newPassword, newPassworAgain);
+        setIsLoading(true);
+        const newPasswordResponse = await changeNewPassword(
+          usertoken,
+          newPassword,
+          newPassworAgain
+        );
+        const { data } = newPasswordResponse;
+        setIsLoading(false);
+        if (data.est_ado) {
+          Swal.fire("Mensaje", data.mes_age, "info");
+          setIsOpenRecover(false);
+          setUserDoc(0);
+          setuserEmail("");
+
+          setUserConfirmcode(0);
+          setNewPassword("");
+          setNewPassworAgain("");
+          setSolUserId(0);
+          setUsertoken("");
+          setCodeEmail(0);
+        } else {
+          Swal.fire("Mensaje", data.mes_age, "info");
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
+  // cambiar el tipo de datos de numbe ra numero ya que no toma el primer valor como por ejemplo el cero
   return (
     <div className=" pt-3 relative flex-col md:flex-row     flex justify-center z-30">
-      {isLoading || (loading && <Loader />)}
+      {(isLoading && <Loader />) || (loading && <Loader />)}
       {!isRegister && (
         <div className="">
           <Article
@@ -250,7 +319,17 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
               <div className="flex w-full  justify-end ">
                 <div
                   className="cursor-pointer"
-                  onClick={() => setIsOpenRecover(false)}
+                  onClick={() => {
+                    setIsOpenRecover(false);
+                    setUserDoc(0);
+                    setuserEmail("");
+                    setUserConfirmcode(0);
+                    setNewPassword("");
+                    setNewPassworAgain("");
+                    setSolUserId(0);
+                    setUsertoken("");
+                    setCodeEmail(0);
+                  }}
                 >
                   <MdCancel
                     title="Cerrar
@@ -261,73 +340,138 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                 </div>
               </div>
               <h3 className="font-bold mb-3">Recuperar contraseña</h3>
+              {!solUserId ? (
+                <>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <div className="flex flex-col mb-2">
+                      <label className="labelLogin font-bold" htmlFor="">
+                        DNI/RUC
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Ingre tu DNI O RUC"
+                        name="userDoc"
+                        // autoComplete="username"
+                        value={userDoc || " "}
+                        onChange={handleInputChange}
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="labelLogin font-bold" htmlFor="">
+                        Correo
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="Ingresa tu correo/email"
+                        name="userEmail"
+                        value={userEmail}
+                        onChange={handleInputChange}
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      />
+                    </div>
+                    <div className="flex justify-end mt-4">
+                      <CustomButton
+                        nameButton="Enviar"
+                        color="bg-blue-500"
+                        width="min-w-[9rem]"
+                        textColor="text-white"
+                        onClick={findUserAcount}
+                      />
+                    </div>
+                  </form>
+                </>
+              ) : null}
 
-              <div className="flex flex-col mb-2">
-                <label className="labelLogin font-bold" htmlFor="">
-                  DNI/RUC
-                </label>
-                <input
-                  type="number"
-                  placeholder="Ingre tu DNI O RUC"
-                  name="userDoc"
-                  // autoComplete="username"
-                  value={userDoc || " "}
-                  onChange={handleInputChange}
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="labelLogin font-bold" htmlFor="">
-                  Correo
-                </label>
-                <input
-                  type="email"
-                  placeholder="Ingresa tu correo/email"
-                  name="userEmail"
-                  // autoComplete="username"
-                  value={userEmail}
-                  onChange={handleInputChange}
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-              </div>
-              <div className="flex justify-end mt-4">
-                {/* <CustomButton
-                          nameButton="Cancelar"
-                          color="bg-red-500"
-                          width="min-w-[9rem]"
-                          textColor="text-white"
-                        /> */}
-                <CustomButton
-                  nameButton="Enviar"
-                  color="bg-blue-500"
-                  width="min-w-[9rem]"
-                  textColor="text-white"
-                  onClick={findUserAcount}
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="labelLogin font-bold">Codigo Recibido</label>
-                <input
-                  type="number"
-                  placeholder="9856784512"
-                  name="userConfirmcode"
-                  // autoComplete="username"
-                  value={userConfirmcode}
-                  onChange={(e) => {
-                    setUserConfirmcode(+e.target.value);
-                  }}
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
-              </div>
-              <div className="flex justify-end mt-4">
-                {/* <CustomButton
-                  nameButton="Enviar codigo"
-                  color="bg-blue-500"
-                  width="min-w-[9rem]"
-                  textColor="text-white"
-                  onClick={findUserAcount}
-                /> */}
-              </div>
+              {solUserId ? (
+                <>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <div className="flex flex-col">
+                      <label className="labelLogin font-bold">
+                        Codigo Recibido
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="9856784512"
+                        name="userConfirmcode"
+                        // autoComplete="username"
+                        value={userConfirmcode}
+                        onChange={(e) => {
+                          setUserConfirmcode(+e.target.value);
+                        }}
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      />
+                    </div>
+                    <div className="flex justify-end mt-4">
+                      <CustomButton
+                        nameButton="Verificar codigo"
+                        color="bg-blue-500"
+                        width="min-w-[9rem]"
+                        textColor="text-white"
+                        onClick={verifyCode}
+                      />
+                    </div>
+                  </form>
+                </>
+              ) : null}
+              {usertoken ? (
+                <>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <h3 className="font-bold mb-2">
+                      Ingresa tu nueva contraseña
+                    </h3>
+                    <div className="flex flex-col">
+                      <label className="labelLogin font-bold" htmlFor="">
+                        Nueva contraseña
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Ingresa tu nueva contraseña"
+                        name="newPassword"
+                        // autoComplete="username"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="labelLogin font-bold" htmlFor="">
+                        Repetir contraseña
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Ingresa tu constraseña otra vez"
+                        name="newPassworAgain"
+                        // autoComplete="username"
+                        value={newPassworAgain}
+                        onChange={(e) => setNewPassworAgain(e.target.value)}
+                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      />
+                    </div>
+                    <div className="flex justify-end mt-4">
+                      <CustomButton
+                        nameButton="Guardar"
+                        color="bg-blue-500"
+                        width="min-w-[9rem]"
+                        textColor="text-white"
+                        onClick={onChangePassword}
+                      />
+                    </div>
+                  </form>
+                </>
+              ) : null}
             </section>
           </CustomModal>
           {!isRegister && (
