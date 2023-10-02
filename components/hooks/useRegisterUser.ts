@@ -107,8 +107,12 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
           setFieldValue("birthdayDate", birhtdayDate);
         } else if (!data.est_ado && data.met_dat === null) {
           setIsExistPerson(false);
+
           Swal.fire({
-            html: `${data.mes_age}<span style="color: blue;">(Por favor regístrese manualmente)</span>`,
+            icon: "info",
+            title: ` ${data.mes_age}`,
+            text: "Por favor llene el formulario con sus datos personales",
+            confirmButtonText: "Aceptar",
           });
 
           setFieldValue("userName", "");

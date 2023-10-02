@@ -22,7 +22,7 @@ export default function RootLayout({
         <Providers>
           {/* //este provider es de redux  */}
           <ProvidersStore>
-            <NavBar />
+            {/* <NavBar /> */}
 
             {children}
           </ProvidersStore>

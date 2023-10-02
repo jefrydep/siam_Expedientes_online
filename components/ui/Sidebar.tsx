@@ -4,7 +4,7 @@ import { FaHome, FaUser } from "react-icons/fa";
 
 const Sidebar = () => {
   return (
-    <section className=" flex h-screen">
+    <section className=" flex w-[15rem] h-screen bg-purple-500">
       <div
         className={` flex text-white relative flex-col  bg-sidebarbgColor  "
         }`}

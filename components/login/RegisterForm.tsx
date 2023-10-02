@@ -122,7 +122,7 @@ const RegisterForm = ({
                       onClick={() =>
                         searchDniFromReniec(values.cidusuario, setFieldValue)
                       }
-                      className="absolute left-3 top-2 cursor-pointer text-blue-600 hover:text-green-400"
+                      className="absolute right-3 top-2 cursor-pointer text-blue-600 hover:text-green-400"
                     >
                       <FiSearch size={26} />
                     </span>
@@ -132,7 +132,7 @@ const RegisterForm = ({
                       placeholder="Busca tu DNI"
                       name="cidusuario"
                       autoComplete="cidusuario"
-                      className="focus:outline-none appearance-none border borderInput focus:ring-1 w-full px-10 py-2 rounded-3xl"
+                      className="focus:outline-none appearance-none border borderInput focus:ring-1 w-full px-3 py-2 rounded-3xl"
                       onBlur={() =>
                         searchDniFromReniec(values.cidusuario, setFieldValue)
                       }
@@ -296,8 +296,8 @@ const RegisterForm = ({
               </section>
               <section className="mb-5">
                 <h2 className="font-bold mb-3 mt-2">Credenciales de Acceso</h2>
-                <div className="  w-full">
-                  <div className="flex flex-col ">
+                <div className="  w-full grid lg:grid-cols-2 gap-4">
+                  <div className="flex flex-col   ">
                     <label className="labelLogin font-bold">Contraseña</label>
                     <div className="relative w-full">
                       <Field
@@ -305,12 +305,12 @@ const RegisterForm = ({
                         name="firstPassword"
                         type={`${isShowPassword ? "text" : "password"}`}
                         placeholder="**************"
-                        className="   focus:outline-none border borderInput focus:ring-1 w-full   px-10 py-2 rounded-3xl "
+                        className="   focus:outline-none border borderInput focus:ring-1 w-full   px-3 py-2 rounded-3xl "
                       />
                       <span
                         title="Mostrar u ocultar contraseña"
                         onClick={() => setIsShowPassword(!isShowPassword)}
-                        className="absolute  text-blue-500  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                        className="absolute  text-blue-500  inset-y-0 right-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
                       >
                         {!isShowPassword ? (
                           <AiFillEye size={25} />
@@ -335,14 +335,14 @@ const RegisterForm = ({
                         name="secondPassword"
                         type={`${isShowSeconPassword ? "text" : "password"}`}
                         placeholder="***************"
-                        className="   focus:outline-none border borderInput focus:ring-1 w-full  px-10 py-2 rounded-3xl "
+                        className="   focus:outline-none border borderInput focus:ring-1 w-full  px-3 py-2 rounded-3xl "
                       />
                       <span
                         title="Mostrar u ocultar contraseña"
                         onClick={() =>
                           setIsShowSeconPassword(!isShowSeconPassword)
                         }
-                        className="absolute  text-blue-500 inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                        className="absolute  text-blue-500 inset-y-0 right-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
                       >
                         {!isShowSeconPassword ? (
                           <AiFillEye size={25} />
