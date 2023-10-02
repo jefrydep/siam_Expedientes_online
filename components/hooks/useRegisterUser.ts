@@ -6,10 +6,11 @@ import {
   getInfoUser,
   isEmailValid,
 } from "@/utils/users";
+import { data } from "autoprefixer";
 import { FormikHelpers } from "formik";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import Swal from "sweetalert2";
 
 const useRegisterUser = (ide_eje: number, nom_eje: string) => {
@@ -21,7 +22,7 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
   const [isLoadingRegister, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // const searchDniFromReniec = async (userId: string, setFieldValue: any) => {
+  // const searchDniFromReniec = async (cidUser: string, setFieldValue: any) => {
   //   setDocNumber(cidUser.trim());
   //   const cidusuarioLength = cidUser.trim().length;
   //   const newIdeDoc = cidusuarioLength === 8 ? 4 : 6;
@@ -64,16 +65,30 @@ const useRegisterUser = (ide_eje: number, nom_eje: string) => {
   //   }
   // };
   const searchDniFromReniec = async (cidUser: string, setFieldValue: any) => {
-    const userId = cidUser.toString();
-    if (userId.trim()) {
+    // setDataPerson()
+    // setDataPerson();
+
+    if (cidUser.trim() === docNumber) return;
+    if (cidUser.trim().length !== 8 && cidUser.trim().length !== 11) {
+      Swal.fire({
+        html: `<span style="color: blue;">(Por favor, ingrese un valor de 8(DNI) u 11(RUC) caracteres)</span>`,
+      });
+      setFieldValue("userName", "");
+      setFieldValue("firstLastName", "");
+      setFieldValue("secondLastName", "");
+      setFieldValue("birthdayDate", "");
+      return;
+    }
+    if (cidUser.trim()) {
+      console.log(cidUser.trim());
       setIsLoading(true);
-      setDocNumber(userId.trim());
-      const cidusuarioLength = userId.trim().length;
+      setDocNumber(cidUser.trim());
+      const cidusuarioLength = cidUser.trim().length;
       const newIdeDoc = cidusuarioLength === 8 ? 4 : 6;
       setFieldValue("ide_doc", newIdeDoc);
 
       try {
-        const user = await getInfoUser(userId.trim());
+        const user = await getInfoUser(cidUser.trim());
 
         const data = user.data;
         setIsLoading(false);

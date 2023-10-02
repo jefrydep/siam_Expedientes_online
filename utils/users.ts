@@ -45,7 +45,7 @@ export const findAcount = async (
   );
   return res;
 };
-export const verifyEmailCode = async (ide_sol: number, code_email: number) => {
+export const verifyEmailCode = async (ide_sol: number, code_email: string) => {
   const res = await axios.get(
     `${API_URL}/siam/usuarios/verifica-codigo/${ide_sol}/${code_email}`
   );

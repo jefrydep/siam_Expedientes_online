@@ -24,6 +24,7 @@ import CustomModal from "../ui/CustomModal";
 import { MdCancel, MdMoreVert } from "react-icons/md";
 import useRecoverPassword from "../hooks/useRecoverPassword";
 import { changeNewPassword, findAcount, verifyEmailCode } from "@/utils/users";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 const validationSchema = Yup.object().shape({
   cidusuario: Yup.string().required("Usuario es requerido"),
   ccpassword: Yup.string().required("Contraseña es requerida"),
@@ -36,16 +37,18 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [isRegister, setIsRegister] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(false);
 
   const [isOpenRecover, setIsOpenRecover] = useState(false);
   const [userDoc, setUserDoc] = useState<number>(0);
   const [userEmail, setuserEmail] = useState<string>("");
-  const [userConfirmcode, setUserConfirmcode] = useState<number>(0);
+  const [userConfirmcode, setUserConfirmcode] = useState<string>("");
   const [solUserId, setSolUserId] = useState<number>();
   const [codeEmail, setCodeEmail] = useState<number>();
   const [usertoken, setUsertoken] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [newPassworAgain, setNewPassworAgain] = useState<string>("");
+  const [isShowSecondPassword, setIsShowSecondPassword] = useState(false);
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
 
@@ -143,7 +146,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   };
   const verifyCode = async () => {
     try {
-      if (solUserId && codeEmail) {
+      if (solUserId && codeEmail && userConfirmcode) {
         setIsLoading(true);
         const isVerify = await verifyEmailCode(solUserId, userConfirmcode);
         const { data } = isVerify;
@@ -186,7 +189,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
           setUserDoc(0);
           setuserEmail("");
 
-          setUserConfirmcode(0);
+          setUserConfirmcode("");
           setNewPassword("");
           setNewPassworAgain("");
           setSolUserId(0);
@@ -323,7 +326,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                     setIsOpenRecover(false);
                     setUserDoc(0);
                     setuserEmail("");
-                    setUserConfirmcode(0);
+                    setUserConfirmcode("");
                     setNewPassword("");
                     setNewPassworAgain("");
                     setSolUserId(0);
@@ -352,13 +355,14 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                         DNI/RUC
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         placeholder="Ingre tu DNI O RUC"
                         name="userDoc"
                         // autoComplete="username"
                         value={userDoc || " "}
                         onChange={handleInputChange}
                         className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                        maxLength={15}
                       />
                     </div>
                     <div className="flex flex-col">
@@ -399,20 +403,20 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                         Codigo Recibido
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         placeholder="9856784512"
                         name="userConfirmcode"
                         // autoComplete="username"
                         value={userConfirmcode}
                         onChange={(e) => {
-                          setUserConfirmcode(+e.target.value);
+                          setUserConfirmcode(e.target.value);
                         }}
                         className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                       />
                     </div>
                     <div className="flex justify-end mt-4">
                       <CustomButton
-                        nameButton="Verificar codigo"
+                        nameButton="Verificar código"
                         color="bg-blue-500"
                         width="min-w-[9rem]"
                         textColor="text-white"
@@ -432,33 +436,61 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                     <h3 className="font-bold mb-2">
                       Ingresa tu nueva contraseña
                     </h3>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col   ">
                       <label className="labelLogin font-bold" htmlFor="">
                         Nueva contraseña
                       </label>
-                      <input
-                        type="password"
-                        placeholder="Ingresa tu nueva contraseña"
-                        name="newPassword"
-                        // autoComplete="username"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                      />
+                      <div className="flex relative w-full">
+                        <input
+                          type={`${isShowPassword ? "text" : "password"}`}
+                          placeholder="Ingresa tu nueva contraseña"
+                          name="newPassword"
+                          // autoComplete="username"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full px-10   focus:outline-none border borderInput focus:ring-1     py-2 rounded-3xl "
+                        />
+                        <span
+                          title="Mostrar u ocultar contraseña"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                          className="absolute  text-blue-500  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                        >
+                          {!isShowPassword ? (
+                            <AiFillEye size={25} />
+                          ) : (
+                            <AiFillEyeInvisible size={25} />
+                          )}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex flex-col">
                       <label className="labelLogin font-bold" htmlFor="">
                         Repetir contraseña
                       </label>
-                      <input
-                        type="password"
-                        placeholder="Ingresa tu constraseña otra vez"
-                        name="newPassworAgain"
-                        // autoComplete="username"
-                        value={newPassworAgain}
-                        onChange={(e) => setNewPassworAgain(e.target.value)}
-                        className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                      />
+                      <div className="relative w-full">
+                        <input
+                          type={`${isShowSecondPassword ? "text" : "password"}`}
+                          placeholder="Ingresa tu constraseña otra vez"
+                          name="newPassworAgain"
+                          // autoComplete="username"
+                          value={newPassworAgain}
+                          onChange={(e) => setNewPassworAgain(e.target.value)}
+                          className="   focus:outline-none border borderInput focus:ring-1 w-full   px-10 py-2 rounded-3xl "
+                        />
+                        <span
+                          title="Mostrar u ocultar contraseña"
+                          onClick={() =>
+                            setIsShowSecondPassword(!isShowSecondPassword)
+                          }
+                          className="absolute  text-blue-500  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                        >
+                          {!isShowSecondPassword ? (
+                            <AiFillEye size={25} />
+                          ) : (
+                            <AiFillEyeInvisible size={25} />
+                          )}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex justify-end mt-4">
                       <CustomButton

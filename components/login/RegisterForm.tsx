@@ -70,6 +70,7 @@ const RegisterForm = ({
   } = useRegisterUser(ide_eje, nom_eje);
   // console.log(cidUser.length);
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowSeconPassword, setIsShowSeconPassword] = useState(false);
   console.log("existe persona ", isExistPerson);
   // console.log(ide_eje);
   // console.log(nom_eje);
@@ -106,6 +107,10 @@ const RegisterForm = ({
           <Form>
             <section className="mb-5 ">
               <h2 className="font-bold ">Información de Contacto</h2>
+              <span className="text-gray-500">
+                Por favor, revise sus datos antes de llenar el formulario
+                correctamente.
+              </span>
               <div className="flex flex-col lg:grid xl:grid xl:grid-cols-3 lg:grid-cols-2 gap-2 px-2 py-5">
                 <div className="flex flex-col  relative">
                   <label className="labelLogin font-bold" htmlFor="">
@@ -117,12 +122,13 @@ const RegisterForm = ({
                       onClick={() =>
                         searchDniFromReniec(values.cidusuario, setFieldValue)
                       }
-                      className="absolute left-3 top-2 cursor-pointer text-gray-500 hover:text-blue-500"
+                      className="absolute left-3 top-2 cursor-pointer text-blue-600 hover:text-green-400"
                     >
-                      <FiSearch size={20} />
+                      <FiSearch size={26} />
                     </span>
                     <Field
-                      type="number"
+                      maxLength={20}
+                      type="text"
                       placeholder="Busca tu DNI"
                       name="cidusuario"
                       autoComplete="cidusuario"
@@ -149,7 +155,7 @@ const RegisterForm = ({
                         // value={userName}
                         disabled={isExistPerson}
                         placeholder="Lucas"
-                        className=" uppercase   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                        className=" uppercase  disabled:bg-red-100  focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                         maxLength={20}
                       />
                       <ErrorMessage
@@ -168,7 +174,7 @@ const RegisterForm = ({
                             name="firstLastName"
                             type="text"
                             placeholder="Luna"
-                            className="   focus:outline-none uppercase   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
+                            className=" disabled:bg-red-100  focus:outline-none uppercase   border borderInput focus:ring-1    px-3 py-2 rounded-3xl "
                             disabled={isExistPerson}
                             maxLength={20}
                           />
@@ -181,7 +187,7 @@ const RegisterForm = ({
                             name="secondLastName"
                             type="text"
                             placeholder="Quispe"
-                            className="   focus:outline-none border uppercase borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                            className=" disabled:bg-red-100  focus:outline-none border uppercase borderInput focus:ring-1   px-3 py-2 rounded-3xl "
                             disabled={isExistPerson}
                             maxLength={20}
                           />
@@ -202,87 +208,100 @@ const RegisterForm = ({
                     </div>
                   </>
                 )}
-                <div className="flex flex-col ">
-                  <label className="labelLogin font-bold">
-                    {docNumber && docNumber?.length >= 9
-                      ? "Fecha de creacion"
-                      : "Fecha de nacimiento"}
-                  </label>
-                  <Field
-                    name="birthdayDate"
-                    type="date"
-                    placeholder="20/02/1969"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                    disabled={isExistPerson}
-                    max="2099-12-12"
-                    min="1900-12-12"
-                  />
-                  <ErrorMessage
-                    name="birthdayDate"
-                    component="div"
-                    className="text-red-500 font-bold"
-                  />
-                </div>
-
-                <div className="flex flex-col ">
-                  <label className="labelLogin font-bold">Celular</label>
-                  <Field
-                    name="firstNumberPhone"
-                    type="number"
-                    placeholder="958658475"
-                    className=" appearance-none   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                  />
-                  <ErrorMessage
-                    name="firstNumberPhone"
-                    component="div"
-                    className="text-red-500 font-bold"
-                  />
-                </div>
-                <div className="flex flex-col ">
-                  <label className="labelLogin font-bold">Celular2</label>
-                  <Field
-                    name="secondNumberPhone"
-                    type="number"
-                    placeholder="987458645"
-                    className=" appearance-none  focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                  />
-                </div>
-                <div className="flex flex-col ">
-                  <label className="labelLogin font-bold">Email</label>
-                  <Field
-                    name="firstEmail"
-                    type="email"
-                    placeholder="jefrydep@gmail.com"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                  />
-                  <ErrorMessage
-                    name="firstEmail"
-                    component="div"
-                    className="text-red-500 font-bold"
-                  />
-                </div>
-                <div className="flex flex-col ">
-                  <label className="labelLogin font-bold">Repertir Email</label>
-                  <Field
-                    name="secondEmail"
-                    type="email"
-                    placeholder="jefrydep@gmail.com"
-                    className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                  />
-                  <ErrorMessage
-                    name="secondEmail"
-                    component="div"
-                    className="text-red-500 font-bold"
-                  />
-                </div>
+                {docNumber && (
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">
+                      {docNumber && docNumber?.length >= 9
+                        ? "Fecha de creacion"
+                        : "Fecha de nacimiento"}
+                    </label>
+                    <Field
+                      name="birthdayDate"
+                      type="date"
+                      placeholder="20/02/1969"
+                      className=" disabled:bg-red-100  focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      disabled={isExistPerson}
+                      max="2099-12-12"
+                      min="1900-12-12"
+                    />
+                    <ErrorMessage
+                      name="birthdayDate"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                )}
               </div>
+              <section>
+                <h4 className="font-bold mb-3">Contactos</h4>
+                <div className="lg:grid lg:grid-cols-2 gap-3">
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">Celular</label>
+                    <Field
+                      name="firstNumberPhone"
+                      type="text"
+                      placeholder="958658475"
+                      className=" appearance-none   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      maxLength={15}
+                    />
+                    <ErrorMessage
+                      name="firstNumberPhone"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">Celular2</label>
+                    <Field
+                      maxLength={15}
+                      name="secondNumberPhone"
+                      type="text"
+                      placeholder="987458645"
+                      className=" appearance-none  focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                    />
+                  </div>
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">Email</label>
+                    <Field
+                      name="firstEmail"
+                      type="email"
+                      placeholder="jefrydep@gmail.com"
+                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                      maxLength={30}
+                    />
+                    <ErrorMessage
+                      name="firstEmail"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                  <div className="flex flex-col ">
+                    <label className="labelLogin font-bold">
+                      Repertir Email
+                    </label>
+                    <Field
+                      maxLength={30}
+                      name="secondEmail"
+                      type="email"
+                      placeholder="jefrydep@gmail.com"
+                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
+                    />
+                    <ErrorMessage
+                      name="secondEmail"
+                      component="div"
+                      className="text-red-500 font-bold"
+                    />
+                  </div>
+                </div>
+              </section>
               <section className="mb-5">
-                <h2 className="font-bold mb-3">Credenciales de Acceso</h2>
+                <h2 className="font-bold mb-3 mt-2">Credenciales de Acceso</h2>
                 <div className="  w-full">
                   <div className="flex flex-col ">
                     <label className="labelLogin font-bold">Contraseña</label>
                     <div className="relative w-full">
                       <Field
+                        maxLength={30}
                         name="firstPassword"
                         type={`${isShowPassword ? "text" : "password"}`}
                         placeholder="**************"
@@ -291,7 +310,7 @@ const RegisterForm = ({
                       <span
                         title="Mostrar u ocultar contraseña"
                         onClick={() => setIsShowPassword(!isShowPassword)}
-                        className="absolute  text-gray-400  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-blue-500"
+                        className="absolute  text-blue-500  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
                       >
                         {!isShowPassword ? (
                           <AiFillEye size={25} />
@@ -310,12 +329,28 @@ const RegisterForm = ({
                     <label className="labelLogin font-bold">
                       Repetir Contraseña
                     </label>
-                    <Field
-                      name="secondPassword"
-                      type={`${isShowPassword ? "text" : "password"}`}
-                      placeholder="***************"
-                      className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                    />
+                    <div className="relative w-full">
+                      <Field
+                        maxLength={30}
+                        name="secondPassword"
+                        type={`${isShowSeconPassword ? "text" : "password"}`}
+                        placeholder="***************"
+                        className="   focus:outline-none border borderInput focus:ring-1 w-full  px-10 py-2 rounded-3xl "
+                      />
+                      <span
+                        title="Mostrar u ocultar contraseña"
+                        onClick={() =>
+                          setIsShowSeconPassword(!isShowSeconPassword)
+                        }
+                        className="absolute  text-blue-500 inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                      >
+                        {!isShowSeconPassword ? (
+                          <AiFillEye size={25} />
+                        ) : (
+                          <AiFillEyeInvisible size={25} />
+                        )}
+                      </span>
+                    </div>
                     <ErrorMessage
                       name="secondPassword"
                       component="div"

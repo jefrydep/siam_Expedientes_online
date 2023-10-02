@@ -21,6 +21,7 @@ declare module "next-auth" {
       nom_com: string;
       type_login: string;
       access_token: string;
+      ide_eje: number;
     };
   }
 }
