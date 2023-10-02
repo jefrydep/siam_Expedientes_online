@@ -1,16 +1,7 @@
 "use client";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
 import { useEffect, useState } from "react";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
 import LoginForm from "@/components/login/LoginForm";
-import useAxios from "@/components/hooks/useAxios";
-import time from "../../../public/img/watch.svg";
-import news from "../../../public/img/news.svg";
-import doc from "../../../public/img/doc.svg";
-import Article from "@/components/login/Article";
 
 const LoginPage = ({ params }: { params: { ide_eje: number } }) => {
   const ide_eje = params.ide_eje;

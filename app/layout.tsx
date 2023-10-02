@@ -20,11 +20,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          {/* <ProvidersStore> */}
-          <NavBar />
+          {/* //este provider es de redux  */}
+          <ProvidersStore>
+            <NavBar />
 
-          {children}
-          {/* </ProvidersStore> */}
+            {children}
+          </ProvidersStore>
         </Providers>
       </body>
     </html>
