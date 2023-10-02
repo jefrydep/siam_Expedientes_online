@@ -39,3 +39,60 @@ kejeto2488@bnovel.com
 yenapiw655@alvisani.com
 bafaha7475@apxby.com
 test
+
+prueba shadcn///
+npm install @radix-ui/react-slot
+
+####condfin.js
+
+@tailwind base;
+@tailwind components;
+
+@tailwind utilities;
+
+:root {
+--bgNavbar: rgb(175, 122, 197);
+--bgHoverButtonLogin: rgb(136, 78, 160);
+}
+
+.navBar {
+background-color: var(--bgNavbar);
+}
+.borderInput {
+/_ color: var(--bgNavbar); _/
+border-color: var(--bgNavbar);
+}
+.labelLogin {
+color: var(--bgNavbar);
+}
+.bgButton {
+background-color: var(--bgNavbar);
+color: white;
+}
+.loginButton:hover {
+background-color: var(--bgHoverButtonLogin);
+}
+.waveBg {
+/_ background-color: var(--bgHoverButtonLogin); _/
+fill: var(--bgHoverButtonLogin);
+}
+
+/\*
+
+@media (prefers-color-scheme: dark) {
+:root {
+--foreground-rgb: 255, 255, 255;
+--background-start-rgb: 0, 0, 0;
+--background-end-rgb: 0, 0, 0;
+}
+}
+
+body {
+color: rgb(var(--foreground-rgb));
+background: linear-gradient(
+to bottom,
+transparent,
+rgb(var(--background-end-rgb))
+)
+rgb(var(--background-start-rgb));
+} \*/

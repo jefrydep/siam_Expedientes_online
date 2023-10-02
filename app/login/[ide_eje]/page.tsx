@@ -2,11 +2,21 @@
 import { useEffect, useState } from "react";
 
 import LoginForm from "@/components/login/LoginForm";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useDispatch } from "react-redux";
+import { setIdeEje } from "@/redux/features";
 
 const LoginPage = ({ params }: { params: { ide_eje: number } }) => {
   const ide_eje = params.ide_eje;
   const [rotColor, setrotColor] = useState({});
+  const ideeje = useAppSelector((state) => state.ide_eje.value);
+  console.log(ideeje);
+  const dispatch = useAppDispatch();
   console.log(ide_eje);
+  useEffect(() => {
+    dispatch(setIdeEje(ide_eje));
+  }, [ide_eje]);
+
   useEffect(() => {
     // const getGlobalColors = async () => {
     //   const colorsUrl = `https://api.pagosvirtualesperu.com/poli/funciones/fn_obt_detalles_poli_web?ide_eje=${login}`;

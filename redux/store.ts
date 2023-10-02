@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { counterSlice } from "./features";
+import { counterSlice, ideEjeSlice } from "./features";
 import { userApi } from "./services/userApi";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 
 export const store = configureStore({
   reducer: {
+    ide_eje: ideEjeSlice.reducer,
     counter: counterSlice.reducer,
     [userApi.reducerPath]: userApi.reducer,
   },
