@@ -13,16 +13,13 @@ import RegisterForm from "./RegisterForm";
 import useAxios from "../hooks/useAxios";
 import time from "../../public/img/watch.svg";
 import news from "../../public/img/news.svg";
-import doc from "../../public/img/doc.svg";
 
-import Image from "next/image";
 import { CompanyResponse } from "@/interfaces/CompanyResponse";
 import Loader from "../loader/Loader";
 import Article from "./Article";
 import CustomMolal from "../ui/CustomModal";
 import CustomModal from "../ui/CustomModal";
 import { MdCancel, MdMoreVert } from "react-icons/md";
-import useRecoverPassword from "../hooks/useRecoverPassword";
 import { changeNewPassword, findAcount, verifyEmailCode } from "@/utils/users";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 const validationSchema = Yup.object().shape({
@@ -38,7 +35,6 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const router = useRouter();
   const [isRegister, setIsRegister] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(false);
-
   const [isOpenRecover, setIsOpenRecover] = useState(false);
   const [userDoc, setUserDoc] = useState<number>(0);
   const [userEmail, setuserEmail] = useState<string>("");
@@ -49,9 +45,10 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [newPassworAgain, setNewPassworAgain] = useState<string>("");
   const [isShowSecondPassword, setIsShowSecondPassword] = useState(false);
+  const [isShowLoginPassword, setIsShowLoginPassword] = useState(false);
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
-
+  console.log(isShowLoginPassword);
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
   const nom_eje = data && data[0].nom_eje;
   const pathImg = data && data[0]?.pat_img;
@@ -300,12 +297,25 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
                   component="div"
                   className="text-red-500 font-bold"
                 />
-                <Field
-                  name="ccpassword"
-                  type="password"
-                  placeholder="*************"
-                  className="   focus:outline-none border borderInput focus:ring-1   px-3 py-2 rounded-3xl "
-                />
+                <div className="relative">
+                  <Field
+                    name="ccpassword"
+                    type={`${isShowLoginPassword ? "text" : "password"}`}
+                    placeholder="*************"
+                    className="   focus:outline-none px-10 border borderInput focus:ring-1   w-full py-2 rounded-3xl "
+                  />
+                  <span
+                    title="Mostrar u ocultar contraseña"
+                    onClick={() => setIsShowLoginPassword(!isShowLoginPassword)}
+                    className="absolute  text-blue-500  inset-y-0 left-3 flex items-center pr-2 cursor-pointer hover:text-green-500"
+                  >
+                    {!isShowLoginPassword ? (
+                      <AiFillEye size={25} />
+                    ) : (
+                      <AiFillEyeInvisible size={25} />
+                    )}
+                  </span>
+                </div>
                 <CustomButton nameButton="Ingresar" color="bgButton" />
                 <span
                   title="Recupera tu contraseña"
