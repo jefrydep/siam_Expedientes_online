@@ -43,7 +43,7 @@ test
 prueba shadcn///
 npm install @radix-ui/react-slot
 
-####condfin.js
+#### condfin.js
 
 @tailwind base;
 @tailwind components;

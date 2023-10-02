@@ -48,6 +48,7 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const [isShowLoginPassword, setIsShowLoginPassword] = useState(false);
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
+
   console.log(isShowLoginPassword);
   const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
   const nom_eje = data && data[0].nom_eje;
