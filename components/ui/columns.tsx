@@ -2,47 +2,42 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "./button";
+import { Item } from "@/interfaces/FilesResponse";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
-  id: number;
-  age: number;
-  name: string;
-  lastName: string;
-};
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Item>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "nom_eje",
     header: "Nombre de la entidad",
   },
   {
-    accessorKey: "lastName",
+    accessorKey: "des_doc",
     header: "Tipo de documento",
   },
   {
-    accessorKey: "age",
+    accessorKey: "asu_nto",
     header: "Asunto",
   },
   {
-    accessorKey: "age",
+    accessorKey: "fch_reg_txt",
     header: "Fecha de petición",
   },
   {
-    accessorKey: "age",
+    accessorKey: "ide_exp",
     header: "N° Expediente",
   },
   {
-    accessorKey: "age",
+    accessorKey: "fch_cer",
     header: "Fch. Petición sin efecto",
   },
 
   {
     id: "actions",
     header: "Acciones",
-    // cell: () => {
-    //   return <Button> hi</Button>;
-    // },
+    cell: () => {
+      return <Button> hi</Button>;
+    },
   },
 ];

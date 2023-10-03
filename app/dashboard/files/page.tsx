@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ErrorMessage } from "formik";
 import { ArrowRightCircle, X } from "lucide-react";
 
 const FilesPage = () => {
@@ -37,6 +38,7 @@ const FilesPage = () => {
           <div>
             <Label className="mb-3  ">RUC</Label>
             <Input type="text" placeholder="RUC" />
+            {/* <ErrorMessage/> */}
           </div>
           <div>
             <Label className="mb-3  ">Entidad/Institución</Label>
