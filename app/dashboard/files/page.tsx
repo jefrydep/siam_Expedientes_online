@@ -1,4 +1,5 @@
 "use client";
+import useAxios from "@/components/hooks/useAxios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,24 +13,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { CompanyResponse } from "@/interfaces/CompanyResponse";
+import { setIdeEje } from "@/redux/features";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ErrorMessage } from "formik";
 import { ArrowRightCircle, X } from "lucide-react";
+import { useEffect } from "react";
 
 const FilesPage = () => {
-  const data = [
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-    { id: 1, name: "jefry", lastName: "Palomino", age: 25 },
-  ];
+  const dispatch = useAppDispatch();
+  const ide_eje = useAppSelector((state) => state.ide_eje.value);
+  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/ppto/ejecutora/funciones/fn_obt_ejecutoras_web_dsd_con_fig/19/${ide_eje}`;
+  useEffect(() => {
+    const storedIdeEje = JSON.parse(localStorage.getItem("ide_eje") ?? "null");
+
+    if (storedIdeEje) {
+      dispatch(setIdeEje(storedIdeEje));
+    }
+  }, [dispatch]);
+  const { data, error, loading } = useAxios<CompanyResponse[]>(API_URL);
+  const nom_eje = data && data[0].nom_eje;
+  const ruc_eje = data && data[0]?.ruc_eje;
+  console.log(nom_eje, ruc_eje);
   return (
     <div className="w-full">
       <section className="bg-white border-b-2  px-2 py-1">
