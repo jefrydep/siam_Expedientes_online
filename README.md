@@ -96,3 +96,5 @@ rgb(var(--background-end-rgb))
 )
 rgb(var(--background-start-rgb));
 } \*/
+
+### react table installed

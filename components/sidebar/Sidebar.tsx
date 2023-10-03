@@ -13,6 +13,7 @@ import {
   Book,
   Cloud,
   CreditCard,
+  Files,
   Github,
   HomeIcon,
   Keyboard,
@@ -37,11 +38,12 @@ import {
 } from "@/components/ui/tooltip";
 
 const Sidebar = () => {
-  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session, status } = useSession();
   const dispatch = useAppDispatch();
   const ide_eje = useAppSelector((state) => state.ide_eje.value);
   const router = useRouter();
+
   console.log(ide_eje);
   useEffect(() => {
     const storedIdeEje = JSON.parse(localStorage.getItem("ide_eje") ?? "null");
@@ -57,13 +59,19 @@ const Sidebar = () => {
         className={` flex text-white relative flex-col w-full  bg-sidebarbgColor  "
         }`}
       >
-        <div
+        {/* <div
           className={`absolute  text-white bottom-[10vh] right-0  `}
           //   onClick={() => setIsOpenMenu(!isOpenMenu)}
         >
-          {/* <FiChevronRight size={50} style={iconStyle} /> */}
-        </div>
+          <FiChevronRight size={50} style={iconStyle} />
+        </div> */}
 
+        <div className="mt-5 flex flex-col justify-center items-center gap-3">
+          <span>
+            <Files size={38} color="orange" />
+          </span>
+          <h4>EXPEDIENTES EN LINEA</h4>
+        </div>
         <nav className="mt-20 flex flex-col gap-4   ">
           <Link className=" " href={"/dashboard/home"}>
             <Button
@@ -75,7 +83,7 @@ const Sidebar = () => {
               <span>Inicio</span>
             </Button>
           </Link>
-          <Link href={"/dashboard/expe"}>
+          <Link href={"/dashboard/files"}>
             <Button
               className="flex px-2 gap-6 w-full  justify-start"
               variant={"ghost"}
@@ -87,10 +95,11 @@ const Sidebar = () => {
 
           <hr />
         </nav>
-        <div className=" absolute flex gap-4  content-center justify-center items-center  bottom-4 w-full bg-purple-300 p-3">
-          <div className="flex flex-col">
-            <h4 className="text-sm">Godofredo Palomino</h4>
-            <span className="text-xs">Jefrydep@gmail.com</span>
+        <div className=" absolute flex gap-4  content-center justify-center items-center border bottom-4 w-full bg-purple-300 p-3">
+          <div className="flex text-black flex-col gap-2 ">
+            <h4 className="text-xs">{session?.user.nom_com}</h4>
+            <span className="text-xs">{session?.user.nro_doc}</span>
+            <span className="text-xs">{session?.user.cor_ele}</span>
           </div>
           <div className="cursor-pointer">
             <TooltipProvider>
@@ -98,6 +107,7 @@ const Sidebar = () => {
                 <TooltipTrigger asChild>
                   {/* <Button variant="outline"> </Button> */}
                   <LogOut
+                    size={36}
                     className="hover:bg-blue-500"
                     onClick={async () => {
                       const result = await Swal.fire({
