@@ -54,10 +54,10 @@ const LoginForm = ({ ide_eje }: PropsLogin) => {
   const nom_eje = data && data[0].nom_eje;
   const pathImg = data && data[0]?.pat_img;
   const ruc_eje = data && data[0]?.ruc_eje;
-  console.log(pathImg);
-  console.log("------ ", data);
-  console.log(userConfirmcode);
-  console.log(usertoken);
+  // console.log(pathImg);
+  // console.log("------ ", data);
+  // console.log(userConfirmcode);
+  // console.log(usertoken);
   const onLogin = async (
     { cidusuario, ccpassword, login, ide_eje }: ValuesLogin,
     actions: FormikHelpers<ValuesLogin>
