@@ -26,6 +26,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as Yup from "yup";
+import { columnsFiles } from "@/components/ui/columnsFiles";
+import { DataTable } from "@/components/ui/data-table";
+import TableFiles from "@/components/files/TableFiles";
 const validationSchema = Yup.object().shape({
   numDoc: Yup.string().required("Campo requerido"),
   ide_doc: Yup.string().required("Campo requerido"),
@@ -86,7 +89,57 @@ const FilesPage = () => {
   const handleSubmitFiles = async (values: any) => {
     setFormDataTemp(values);
     console.log(values);
-    localStorage.setItem("formData", JSON.stringify(values));
+    const formData = new FormData();
+    formData.append("ano_eje", values.ano_eje);
+    formData.append("ide_eje", values.ide_eje);
+    formData.append("ide_doc", values.ide_doc);
+    formData.append("nro_doc", values.numDoc);
+    formData.append("fch_reg", values.fch_reg);
+    formData.append("asu_nto", values.asu_nto);
+    formData.append("ide_rut", values.ider_rut);
+    // valores por defecto
+    formData.append("obs_pet", "");
+    formData.append("flg_cer", "0");
+    formData.append("flg_c_p", "1");
+    // formData.forEach((value, key) => {
+    //   console.log(key, value);
+    // });
+
+    const files = [];
+
+    // formData.append(
+    //   "arr_doc_anx",
+    //   JSON.stringify([
+    //     {
+    //       ide_doc: 49,
+    //       fch_doc: "2023-09-11",
+    //       fch_reg: new Date(),
+    //       ide_fil: null,
+    //       //ide_rcr: null,
+    //       ide_rcr: 1,
+    //       fil_idx: 0, //index files[0]
+    //     },
+    //     {
+    //       ide_doc: 49,
+    //       fch_doc: "2023-09-11",
+    //       fch_reg: new Date(),
+    //       ide_fil: null,
+    //       //ide_rcr: null,
+    //       ide_rcr: 2,
+    //       fil_idx: 0, //index files[0]
+    //     },
+    //     {
+    //       ide_doc: 49,
+    //       fch_doc: "2023-09-11",
+    //       fch_reg: new Date(),
+    //       ide_fil: null,
+    //       //ide_rcr: null,
+    //       ide_rcr: 12,
+    //       fil_idx: 1, //index files[1]
+    //     },
+    //   ])
+    // );
+    // localStorage.setItem("formData", JSON.stringify(values));
   };
   const transformedData = dataDoc?.map((item) => ({
     value: item.ide_doc,
@@ -120,6 +173,7 @@ const FilesPage = () => {
     value: doc.ide_rut,
     label: doc.des_rut,
   }));
+
   const dateToString = (date: Date): string => {
     return date.toISOString().split("T")[0];
   };
@@ -174,11 +228,10 @@ const FilesPage = () => {
                     numDoc: "",
                     ide_rut: "",
                     ideEje: ide_eje,
-                    obs_pet: "",
-                    flg_cer: 0,
-                    flg_c_p: "1",
+
                     fch_reg: currentDate,
                     asu_nto: "",
+                    file: "",
 
                     // doc_eje: "",
                   }}
@@ -224,7 +277,6 @@ const FilesPage = () => {
                           />
                           <ErrorMessage
                             name="ide_doc"
-                            div
                             className="text-red-300 text-xs"
                           />
                         </div>
@@ -303,6 +355,22 @@ const FilesPage = () => {
                           placeholder="Asunto"
                         />
                       </div>
+                      <section>
+                        <h4 className="font-bold mb-5">Subida de archivos</h4>
+                        <hr />
+                        <div>
+                          <h5 className="font-bold">
+                            Adjuntar Archivos en formato PDF
+                          </h5>
+                          <div>
+                            <DataTable
+                              columns={columnsFiles}
+                              data={requirements}
+                            />
+                            {/* <TableFiles /> */}
+                          </div>
+                        </div>
+                      </section>
 
                       <div className="flex gap-3">
                         <Button variant={"destructive"}>

@@ -3,45 +3,52 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "./button";
 import { Item } from "@/interfaces/FilesResponse";
+import { Input } from "./input";
+import { Requisito } from "@/interfaces/RouteResponse";
+import { Field, useField, useFormikContext } from "formik"; // Importa las funciones de Formik
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export const columnsFiles: ColumnDef<Item>[] = [
+console.log("holadfd");
+export const columnsFiles: ColumnDef<Requisito>[] = [
   {
-    accessorKey: "nom_eje",
-    header: "Acc.",
+    id: "actions",
+    header: "Acciones",
+    cell: () => {
+      return <Field name="file" as={Input} type="file" accept=".pdf" />;
+    },
   },
   {
-    accessorKey: "des_doc",
+    accessorKey: "des_doc_pad",
     header: "Tipo Doc",
   },
   {
-    accessorKey: "asu_nto",
+    accessorKey: "des_doc",
     header: "Descripción",
   },
   {
-    accessorKey: "fch_reg_txt",
+    accessorKey: "1",
     header: "N° Doc",
   },
   {
-    accessorKey: "ide_exp",
+    accessorKey: "2",
     header: "Fch.Doc",
   },
   {
-    accessorKey: "fch_cer",
+    accessorKey: "3",
     header: "Nombre Arch.",
   },
   {
-    accessorKey: "fccer",
+    accessorKey: "4 ",
     header: "Tipo Arch",
   },
   {
-    accessorKey: "fer",
+    accessorKey: "5 ",
     header: "Cant Pag.",
   },
   {
-    accessorKey: "fch",
+    accessorKey: "6",
     header: "Peso",
   },
 
