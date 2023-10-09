@@ -9,6 +9,7 @@ export interface Requisito {
   abr_doc: string;
   des_doc: string;
   des_doc_pad: string;
+  fil_idx: number;
 }
 
 export interface Ruta {

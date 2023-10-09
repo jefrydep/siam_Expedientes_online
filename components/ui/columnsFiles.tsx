@@ -6,6 +6,8 @@ import { Item } from "@/interfaces/FilesResponse";
 import { Input } from "./input";
 import { Requisito } from "@/interfaces/RouteResponse";
 import { Field, FieldArray, useField, useFormikContext } from "formik"; // Importa las funciones de Formik
+import { useState } from "react";
+import FileInput from "./FileInput";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -15,31 +17,37 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
   {
     id: "actions",
     // header: "Acciones",
-    cell: ({row}) => {
-      const requisito = row.original
-      console.log(requisito)
+    cell: ({ row }) => {
+      // const requisito = row.original;
+      // console.log(requisito);
       // console.log(row)
-      const { setFieldValue, values } = useFormikContext();
-
-      const fieldName = `files${row}`; // Asigna un nombre de campo único
+      // const { setFieldValue, values } = useFormikContext();
+      // const [files, setFiles] = useState<any[]>([]);
+      // console.log(files);
+      // const fieldName = `files${row}`; // Asigna un nombre de campo único
+      // const fieldName = `files[${row.index}]`; // Use an array for the field name
 
       // console.log(values);
       return (
-        <Field
-          // name={fieldName}
-          multiple
-          name={`files${requisito.ide_doc}`}
-          as={Input}
-          type="file"
-          accept=".pdf"
-          onChange={(event: any) => {
-            // Actualiza el valor del campo de archivo en el estado
-            setFieldValue(`files[${row}]`, event.currentTarget.files[0]);
-            console.log(event);
-
-            // setFieldValue("files", event.currentTarget.files[1]);
-          }}
-        />
+        <FileInput row={row} />
+        // <input
+        //   type="file"
+        //   accept=".pdf"
+        //   // data-ide_rcr={req.ide_rcr}
+        //   // data-idx={idx}
+        //   onChange={(event: any) => {
+        //     console.log(
+        //       event.currentTarget["data-ide_rcr"],
+        //       event.currentTarget
+        //     );
+        //     console.log(event.currentTarget.files[0]);
+        //     if (event.currentTarget.files.length > 0) {
+        //       const lfiles = [...files];
+        //       lfiles.push(event.currentTarget.files[0]);
+        //       setFiles(lfiles);
+        //       console.log(lfiles.length);
+        //     }
+        //   }}
         // <FieldArray
         //   name="filesArray"
         //   render={(arrayHelpers) => (
@@ -59,42 +67,41 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
         //       ))}
         //     </div>
         //   )}
-        // />
       );
     },
   },
-  {
-    accessorKey: "des_doc_pad",
-    header: "Tipo Doc",
-  },
-  {
-    accessorKey: "des_doc",
-    header: "Descripción",
-  },
-  {
-    accessorKey: "1",
-    header: "N° Doc",
-  },
-  {
-    accessorKey: "2",
-    header: "Fch.Doc",
-  },
-  {
-    accessorKey: "3",
-    header: "Nombre Arch.",
-  },
-  {
-    accessorKey: "4 ",
-    header: "Tipo Arch",
-  },
-  {
-    accessorKey: "5 ",
-    header: "Cant Pag.",
-  },
-  {
-    accessorKey: "6",
-    header: "Peso",
-  },
+  // {
+  //   accessorKey: "des_doc_pad",
+  //   header: "Tipo Doc",
+  // },
+  // {
+  //   accessorKey: "des_doc",
+  //   header: "Descripción",
+  // },
+  // {
+  //   accessorKey: "1",
+  //   header: "N° Doc",
+  // },
+  // {
+  //   accessorKey: "2",
+  //   header: "Fch.Doc",
+  // },
+  // {
+  //   accessorKey: "3",
+  //   header: "Nombre Arch.",
+  // },
+  // {
+  //   accessorKey: "4 ",
+  //   header: "Tipo Arch",
+  // },
+  // {
+  //   accessorKey: "5 ",
+  //   header: "Cant Pag.",
+  // },
+  // {
+  //   accessorKey: "6",
+  //   header: "Peso",
+  // },
 
   //   {
   //     id: "actions",

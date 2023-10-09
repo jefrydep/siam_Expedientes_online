@@ -10,7 +10,7 @@ import { CompanyResponse } from "@/interfaces/CompanyResponse";
 import { DocResponse } from "@/interfaces/DocResponse";
 import { setIdeEje } from "@/redux/features";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik, useFormikContext } from "formik";
 import { ArrowRightCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
@@ -50,10 +50,10 @@ const FilesPage = () => {
   const { data: dataDoc } = useAxios<DocResponse[]>(
     `${process.env.NEXT_PUBLIC_API_URL}/siam/vistas/Vw_doctos_cp`
   );
-  // const [docType, setDocType] = useState("");
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  console.log(dataDoc);
+
   const [selectedOption, setSelectedOption] = useState(null);
   const [docOptions, setDocOptions] = useState<DocTypes[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,6 +65,9 @@ const FilesPage = () => {
   const currentDate = new Date();
   const route = useRouter();
   const [filesDAta, setFilesDAta] = useState([]);
+  const [files, setFiles] = useState<any[]>([]);
+
+  const token = session?.user.access_token;
 
   const handleNumberConvert = async (numDoc: string, setFieldValue: any) => {
     console.log(numDoc);
@@ -89,57 +92,47 @@ const FilesPage = () => {
   };
   const handleSubmitFiles = async (values: any) => {
     setFormDataTemp(values);
+    console.log(values.files);
+    const uniqueFileNames = new Set(values.files.map((file: any) => file.name));
+    console.log(uniqueFileNames);
     console.log(values);
     const formData = new FormData();
     formData.append("ano_eje", values.ano_eje);
-    formData.append("ide_eje", values.ide_eje);
+    formData.append("ide_eje", values.ideEje);
     formData.append("ide_doc", values.ide_doc);
     formData.append("nro_doc", values.numDoc);
     formData.append("fch_reg", values.fch_reg);
     formData.append("asu_nto", values.asu_nto);
-    formData.append("ide_rut", values.ider_rut);
+    formData.append("ide_rut", values.ide_rut);
     // valores por defecto
     formData.append("obs_pet", "");
     formData.append("flg_cer", "0");
     formData.append("flg_c_p", "1");
-    // formData.forEach((value, key) => {
-    //   console.log(key, value);
-    // });
+    console.log(requirements);
+    formData.append("arr_doc_anx", JSON.stringify(requirements));
+    if (values.files) {
+      console.log(values.files);
+      formData.append(`files`, values.files);
+      // for (let i = 0; i < values.files.length; i++) {
+      //   formData.append(`files${i}`, values.files[i]);
+      // }
+    }
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+    const response = await axios.post(
+      `https://api.pagosvirtualesperu.com/tramite/peticion/files`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    const res = response.data;
+    console.log(res);
 
-    const files = [];
-
-    // formData.append(
-    //   "arr_doc_anx",
-    //   JSON.stringify([
-    //     {
-    //       ide_doc: 49,
-    //       fch_doc: "2023-09-11",
-    //       fch_reg: new Date(),
-    //       ide_fil: null,
-    //       //ide_rcr: null,
-    //       ide_rcr: 1,
-    //       fil_idx: 0, //index files[0]
-    //     },
-    //     {
-    //       ide_doc: 49,
-    //       fch_doc: "2023-09-11",
-    //       fch_reg: new Date(),
-    //       ide_fil: null,
-    //       //ide_rcr: null,
-    //       ide_rcr: 2,
-    //       fil_idx: 0, //index files[0]
-    //     },
-    //     {
-    //       ide_doc: 49,
-    //       fch_doc: "2023-09-11",
-    //       fch_reg: new Date(),
-    //       ide_fil: null,
-    //       //ide_rcr: null,
-    //       ide_rcr: 12,
-    //       fil_idx: 1, //index files[1]
-    //     },
-    //   ])
-    // );
     // localStorage.setItem("formData", JSON.stringify(values));
   };
   const transformedData = dataDoc?.map((item) => ({
@@ -179,19 +172,15 @@ const FilesPage = () => {
     return date.toISOString().split("T")[0];
   };
   const currentDateFormated = dateToString(currentDate);
-  console.log(currentDateFormated);
-  // console.log(transformedData);
-  // console.log(value);
-  console.log(docOptions);
-  // console.log(docType);
+
   const handleRouteFiles = async (ideRoute: number) => {
-    console.log(ideRoute);
+    // console.log(ideRoute);
     try {
       const response = await axios.get<RouteResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/trami_cp/funciones/fn_obt_detalles_ruta_cp/${ideRoute}`,
         {
           headers: {
-            Authorization: `Bearer ${session?.user.access_token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -203,10 +192,12 @@ const FilesPage = () => {
       console.log(error);
     }
   };
-  console.log(routeFiles);
+  // console.log(routeFiles);
   // aveces requisitos me trae null
   console.log(requirements);
   console.log(formDataTemp);
+  console.log(files);
+
   return (
     <div className="w-full h-screen overflow-y-auto">
       <section className="bg-white border-b-2  px-2 py-1">
@@ -230,7 +221,7 @@ const FilesPage = () => {
                     ide_rut: "",
                     ideEje: ide_eje,
 
-                    fch_reg: currentDate,
+                    fch_reg: currentDateFormated,
                     asu_nto: "",
                     files: [],
 
@@ -308,9 +299,11 @@ const FilesPage = () => {
                             onChange={(option) => {
                               const selectedValue = option?.value;
                               const asunto = option?.label;
+                              console.log(selectedValue);
 
                               if (typeof selectedValue === "number") {
                                 setSelectedTypeProcess(selectedValue);
+                                console.log(selectedValue);
                                 setFieldValue("ide_rut", selectedValue);
                                 setFieldValue("asu_nto", asunto);
                                 handleRouteFiles(selectedValue);
@@ -364,6 +357,46 @@ const FilesPage = () => {
                             Adjuntar Archivos en formato PDF
                           </h5>
                           <div>
+                            {/* <table>
+                              <thead>
+                                <tr>
+                                  <th>Archivo</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  {requirements.map((req, idx) => (
+                                    <td>
+                                      <input
+                                        type="file"
+                                        accept=".pdf"
+                                        data-ide_rcr={req.ide_rcr}
+                                        data-idx={idx}
+                                        onChange={(event: any) => {
+                                          console.log(
+                                            event.currentTarget["data-ide_rcr"],
+                                            event.currentTarget
+                                          );
+                                          console.log(
+                                            event.currentTarget.files[0]
+                                          );
+                                          if (
+                                            event.currentTarget.files.length > 0
+                                          ) {
+                                            const lfiles = [...files];
+                                            lfiles.push(
+                                              event.currentTarget.files[0]
+                                            );
+                                            setFiles(lfiles);
+                                            console.log(lfiles.length);
+                                          }
+                                        }}
+                                      />
+                                    </td>
+                                  ))}
+                                </tr>
+                              </tbody>
+                            </table> */}
                             <DataTable
                               columns={columnsFiles}
                               data={requirements}
@@ -381,7 +414,7 @@ const FilesPage = () => {
 
                         <Button type="submit">
                           <ArrowRightCircle />
-                          Siguiente
+                          Enviar
                         </Button>
                       </div>
                     </Form>
