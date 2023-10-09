@@ -16,7 +16,22 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
     id: "actions",
     header: "Acciones",
     cell: () => {
-      return <Field name="file" as={Input} type="file" accept=".pdf" />;
+      const { setFieldValue, values } = useFormikContext();
+      // console.log(values);
+      return (
+        <Field
+          multiple
+          name={`files${+1}`}
+          as={Input}
+          type="file"
+          accept=".pdf"
+          onChange={(event: any) => {
+            // Actualiza el valor del campo de archivo en el estado
+            setFieldValue("files", event.currentTarget.files[+1]);
+            // setFieldValue("files", event.currentTarget.files[1]);
+          }}
+        />
+      );
     },
   },
   {

@@ -64,6 +64,7 @@ const FilesPage = () => {
   const [formDataTemp, setFormDataTemp] = useState([]);
   const currentDate = new Date();
   const route = useRouter();
+  const [filesDAta, setFilesDAta] = useState([]);
 
   const handleNumberConvert = async (numDoc: string, setFieldValue: any) => {
     console.log(numDoc);
@@ -231,7 +232,7 @@ const FilesPage = () => {
 
                     fch_reg: currentDate,
                     asu_nto: "",
-                    file: "",
+                    files: [],
 
                     // doc_eje: "",
                   }}
