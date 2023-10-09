@@ -5,7 +5,7 @@ import { Button } from "./button";
 import { Item } from "@/interfaces/FilesResponse";
 import { Input } from "./input";
 import { Requisito } from "@/interfaces/RouteResponse";
-import { Field, useField, useFormikContext } from "formik"; // Importa las funciones de Formik
+import { Field, FieldArray, useField, useFormikContext } from "formik"; // Importa las funciones de Formik
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -14,23 +14,52 @@ console.log("holadfd");
 export const columnsFiles: ColumnDef<Requisito>[] = [
   {
     id: "actions",
-    header: "Acciones",
-    cell: () => {
+    // header: "Acciones",
+    cell: ({row}) => {
+      const requisito = row.original
+      console.log(requisito)
+      // console.log(row)
       const { setFieldValue, values } = useFormikContext();
+
+      const fieldName = `files${row}`; // Asigna un nombre de campo único
+
       // console.log(values);
       return (
         <Field
+          // name={fieldName}
           multiple
-          name={`files${+1}`}
+          name={`files${requisito.ide_doc}`}
           as={Input}
           type="file"
           accept=".pdf"
           onChange={(event: any) => {
             // Actualiza el valor del campo de archivo en el estado
-            setFieldValue("files", event.currentTarget.files[+1]);
+            setFieldValue(`files[${row}]`, event.currentTarget.files[0]);
+            console.log(event);
+
             // setFieldValue("files", event.currentTarget.files[1]);
           }}
         />
+        // <FieldArray
+        //   name="filesArray"
+        //   render={(arrayHelpers) => (
+        //     <div>
+        //       {values.filesArray.map((_, index) => (
+        //         <div key={index}>
+        //           <Field
+        //             name={`filesArray[${index}]`}
+        //             type="file"
+        //             accept=".pdf"
+        //             onChange={(event:any) => {
+        //               const file = event.currentTarget.files[0];
+        //               arrayHelpers.replace(index, file);
+        //             }}
+        //           />
+        //         </div>
+        //       ))}
+        //     </div>
+        //   )}
+        // />
       );
     },
   },
