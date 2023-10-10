@@ -33,11 +33,11 @@ export const columns: ColumnDef<Item>[] = [
     header: "Fch. Petición sin efecto",
   },
 
-  {
-    id: "actions",
-    header: "Acciones",
-    cell: () => {
-      return <Button> hi</Button>;
-    },
-  },
+  // {
+  //   id: "actions",
+  //   header: "Acciones",
+  //   cell: () => {
+  //     return <Button> hi</Button>;
+  //   },
+  // },
 ];

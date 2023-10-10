@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CompanyResponse } from "@/interfaces/CompanyResponse";
 import { DocResponse } from "@/interfaces/DocResponse";
-import { setIdeEje } from "@/redux/features";
+import { addRequirement, setIdeEje } from "@/redux/features";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from "formik";
 import { ArrowRightCircle, X } from "lucide-react";
@@ -18,7 +18,8 @@ import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import ValueType from "react-select";
 import { DocTypes } from "@/interfaces/DocTypes";
-import axios from "axios";
+import Axios from "axios";
+
 import { Session } from "inspector";
 import { useSession } from "next-auth/react";
 import { Requisito, RouteResponse, Ruta } from "@/interfaces/RouteResponse";
@@ -28,7 +29,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as Yup from "yup";
 import { columnsFiles } from "@/components/ui/columnsFiles";
 import { DataTable } from "@/components/ui/data-table";
-import TableFiles from "@/components/files/TableFiles";
 const validationSchema = Yup.object().shape({
   numDoc: Yup.string().required("Campo requerido"),
   ide_doc: Yup.string().required("Campo requerido"),
@@ -52,7 +52,6 @@ const FilesPage = () => {
   );
 
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [docOptions, setDocOptions] = useState<DocTypes[]>([]);
@@ -68,6 +67,11 @@ const FilesPage = () => {
   const [files, setFiles] = useState<any[]>([]);
 
   const token = session?.user.access_token;
+  const dateToString = (date: Date): string => {
+    return date.toISOString().split("T")[0];
+  };
+  const currentDateFormated = dateToString(currentDate);
+  // const { setFieldValue, values } = useFormikContext<any>();
 
   const handleNumberConvert = async (numDoc: string, setFieldValue: any) => {
     console.log(numDoc);
@@ -90,11 +94,15 @@ const FilesPage = () => {
       setFieldValue("numDoc", numDoc);
     }
   };
+
+  const dispatchRequirements = useAppDispatch();
   const handleSubmitFiles = async (values: any) => {
     setFormDataTemp(values);
     console.log(values.files);
-    const uniqueFileNames = new Set(values.files.map((file: any) => file.name));
-    console.log(uniqueFileNames);
+    // const uniqueFileNames = new Set(values.files.map((file: any) => file.name));
+    // console.log(uniqueFileNames);
+    // const filesName = new Set(files.map((file: any) => file.name));
+    // console.log(filesName);
     console.log(values);
     const formData = new FormData();
     formData.append("ano_eje", values.ano_eje);
@@ -108,32 +116,71 @@ const FilesPage = () => {
     formData.append("obs_pet", "");
     formData.append("flg_cer", "0");
     formData.append("flg_c_p", "1");
+
     console.log(requirements);
-    formData.append("arr_doc_anx", JSON.stringify(requirements));
+    const requirementsFormated = requirements.map((req, index) => ({
+      ide_doc: req.ide_doc,
+      fch_doc: currentDateFormated,
+      fch_reg: currentDateFormated,
+      ide_fil: null,
+      ide_rcr: req.ide_rcr,
+      fil_idx: index,
+    }));
+
     if (values.files) {
       console.log(values.files);
-      formData.append(`files`, values.files);
-      // for (let i = 0; i < values.files.length; i++) {
-      //   formData.append(`files${i}`, values.files[i]);
-      // }
+      values.files.forEach((file: any) => {
+        formData.append(`files[]`, file);
+      });
     }
+    console.log(files);
+    // formData.append(`files`, filesName);
+
+    formData.append("arr_doc_anx", JSON.stringify(requirementsFormated));
     formData.forEach((value, key) => {
       console.log(key, value);
     });
-    const response = await axios.post(
-      `https://api.pagosvirtualesperu.com/tramite/peticion/files`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    const res = response.data;
-    console.log(res);
+    // const response = await axios.post(
+    //   `http://192.168.1.191:3006/tramite/peticion/files`,
+    //   formData,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   },
+    //   onUploadProgress: (progress) => {
+    //     const { total, loaded } = progress;
+    //     let totalSizeInMB: number;
+    //     // @ts-ignore
+    //     totalSizeInMB = total / 1000000;
+    //     const loadedSizeInMB = loaded / 1000000;
+    //     const uploadPercentage = (loadedSizeInMB / totalSizeInMB) * 100;
+    //     setUploadPercentage(uploadPercentage.toFixed(2));
 
-    // localStorage.setItem("formData", JSON.stringify(values));
+    // });
+    // const response = await Axios({
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     "Content-Type": "multipart/form-data",
+    //   },
+    //   method: "POST",
+    //   data: formData,
+    //   url: "", // Ruta
+    //   baseURL: "https://api.pagosvirtualesperu.com/tramite/peticion/files", // URL local
+    //   onUploadProgress: (progress: any) => {
+    //     const { total, loaded } = progress;
+    //     let totalSizeInMB: number;
+    //     // @ts-ignore
+    //     totalSizeInMB = total / 1000000;
+    //     const loadedSizeInMB = loaded / 1000000;
+    //     const uploadPercentage = (loadedSizeInMB / totalSizeInMB) * 100;
+    //     console.log(total, " - ", loadedSizeInMB, " - ", uploadPercentage);
+    //     //        setUploadPercentage(uploadPercentage.toFixed(2));
+    //   },
+    // });
+    // const res = response.data;
+    // console.log(res);
   };
   const transformedData = dataDoc?.map((item) => ({
     value: item.ide_doc,
@@ -142,15 +189,14 @@ const FilesPage = () => {
 
   const handleDocTypes = (query: any) => {
     setSearchQuery(query);
-    axios
-      .get(
-        `${process.env.NEXT_PUBLIC_API_URL}/trami_cp/funciones/fn_api_obt_ruta/${ide_eje}/2023?txt_bsq=${query}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user.access_token}`,
-          },
-        }
-      )
+    Axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/trami_cp/funciones/fn_api_obt_ruta/${ide_eje}/2023?txt_bsq=${query}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session?.user.access_token}`,
+        },
+      }
+    )
       .then((response) => {
         if (Array.isArray(response.data)) {
           setDocOptions(response.data);
@@ -168,15 +214,10 @@ const FilesPage = () => {
     label: doc.des_rut,
   }));
 
-  const dateToString = (date: Date): string => {
-    return date.toISOString().split("T")[0];
-  };
-  const currentDateFormated = dateToString(currentDate);
-
   const handleRouteFiles = async (ideRoute: number) => {
     // console.log(ideRoute);
     try {
-      const response = await axios.get<RouteResponse>(
+      const response = await Axios.get<RouteResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/trami_cp/funciones/fn_obt_detalles_ruta_cp/${ideRoute}`,
         {
           headers: {
@@ -186,6 +227,7 @@ const FilesPage = () => {
       );
       const res = response.data;
       setRouteFiles(res.ruta);
+
       setRequirements(res.requisitos);
       console.log(res);
     } catch (error) {
@@ -195,9 +237,7 @@ const FilesPage = () => {
   // console.log(routeFiles);
   // aveces requisitos me trae null
   console.log(requirements);
-  console.log(formDataTemp);
   console.log(files);
-
   return (
     <div className="w-full h-screen overflow-y-auto">
       <section className="bg-white border-b-2  px-2 py-1">
@@ -373,22 +413,70 @@ const FilesPage = () => {
                                         data-ide_rcr={req.ide_rcr}
                                         data-idx={idx}
                                         onChange={(event: any) => {
-                                          console.log(
-                                            event.currentTarget["data-ide_rcr"],
-                                            event.currentTarget
-                                          );
-                                          console.log(
-                                            event.currentTarget.files[0]
-                                          );
+                                          const ide_rcr =
+                                            event.currentTarget.getAttribute(
+                                              "data-ide_rcr"
+                                            );
+                                          const idx =
+                                            event.currentTarget.getAttribute(
+                                              "data-idx"
+                                            );
+
                                           if (
                                             event.currentTarget.files.length > 0
                                           ) {
+                                            const selectedFile =
+                                              event.currentTarget.files[0];
                                             const lfiles = [...files];
-                                            lfiles.push(
-                                              event.currentTarget.files[0]
+                                            selectedFile.name;
+                                            let idx = lfiles.findIndex(
+                                              (file) =>
+                                                file.name === selectedFile.name
+                                            );
+                                            if (idx >= 0) {
+                                              let idx = requirements.findIndex(
+                                                (file) =>
+                                                  file.ide_rcr ===
+                                                  selectedFile.ide_rcr
+                                              );
+                                              if (idx >= 0) {
+                                                let lrequirements = [
+                                                  ...requirements,
+                                                ];
+                                                lrequirements[idx].fil_idx =
+                                                  idx;
+                                                setRequirements(lrequirements);
+                                              }
+                                            } else
+                                              idx =
+                                                lfiles.push(selectedFile) - 1;
+
+                                            console.log(
+                                              "index",
+                                              idx,
+                                              lfiles.length
                                             );
                                             setFiles(lfiles);
-                                            console.log(lfiles.length);
+
+                                            // Crear un nuevo arreglo de requisitos actualizado con nombre y peso del archivo
+                                            // const updatedRequirements =
+                                            //   requirements.map(
+                                            //     (req, reqIdx) => {
+                                            //       if (reqIdx === Number(idx)) {
+                                            //         // Cuando idx coincide con el índice del requisito
+                                            //         return {
+                                            //           ...req,
+                                            //           name: selectedFile.name,
+                                            //           size: selectedFile.size,
+                                            //         };
+                                            //       }
+                                            //       return req;
+                                            //     }
+                                            //   );
+
+                                            // setRequirements(
+                                            //   updatedRequirements
+                                            // );
                                           }
                                         }}
                                       />
@@ -397,10 +485,90 @@ const FilesPage = () => {
                                 </tr>
                               </tbody>
                             </table> */}
-                            <DataTable
+                            <div className="w-full grid grid-cols-13 p-2 bg-green-400">
+                              <div className="col-span-2">Acciones</div>
+                              <div className="col-span-2">Tipo Doc</div>
+                              <div className="col-span-2">Descripción</div>
+                              <div>N° Doc</div>
+                              <div>Fch.Doc</div>
+                              <div className="col-span-2">Nombre Arch.</div>
+                              <div>Tipo Arch.</div>
+                              <div>Cant Pag.</div>
+                              <div>Peso</div>
+                            </div>
+                            {requirements.map((req, idx) => (
+                              <div className="w-full grid   gap-2 p-3 border text-sm  grid-cols-13">
+                                <Input
+                                  className="col-span-2"
+                                  type="file"
+                                  accept=".pdf"
+                                  data-ide_rcr={req.ide_rcr}
+                                  data-idx={idx}
+                                  onChange={(event: any) => {
+                                    if (event.currentTarget.files.length > 0) {
+                                      const selectedFile =
+                                        event.currentTarget.files[0];
+                                      const lfiles = [...files];
+                                      selectedFile.name;
+                                      let idx = lfiles.findIndex(
+                                        (file) =>
+                                          file.name === selectedFile.name
+                                      );
+                                      if (idx >= 0) {
+                                        let idx = requirements.findIndex(
+                                          (file) =>
+                                            file.ide_rcr ===
+                                            selectedFile.ide_rcr
+                                        );
+                                        if (idx >= 0) {
+                                          let lrequirements = [...requirements];
+                                          lrequirements[idx].fil_idx = idx;
+                                          setRequirements(lrequirements);
+                                        }
+                                      } else
+                                        idx = lfiles.push(selectedFile) - 1;
+
+                                      console.log("index", idx, lfiles.length);
+                                      setFiles(lfiles);
+
+                                      // Crear un nuevo arreglo de requisitos actualizado con nombre y peso del archivo
+                                      const updatedRequirements =
+                                        requirements.map((req, reqIdx) => {
+                                          if (reqIdx === Number(idx)) {
+                                            // Cuando idx coincide con el índice del requisito
+                                            return {
+                                              ...req,
+                                              name: selectedFile.name,
+                                              size: selectedFile.size,
+                                            };
+                                          }
+                                          return req;
+                                        });
+
+                                      setRequirements(updatedRequirements);
+                                    }
+                                  }}
+                                />
+
+                                <div className="col-span-2">
+                                  {req.des_doc_pad}
+                                </div>
+                                <div className="col-span-2">{req.des_doc}</div>
+                                <div>N° Doc</div>
+                                <div>
+                                  <input type="text" />
+                                </div>
+                                <div className="col-span-2">{req.name}</div>
+                                <div>Tipo Arch.</div>
+                                <div>Cant Pag.</div>
+                                <div className="  bg-blue-500">{req.size}</div>
+                              </div>
+                            ))}
+
+                            {/* <DataTable
                               columns={columnsFiles}
                               data={requirements}
-                            />
+                            /> */}
                             {/* <TableFiles /> */}
                           </div>
                         </div>

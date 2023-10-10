@@ -18,9 +18,9 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
     id: "actions",
     // header: "Acciones",
     cell: ({ row }) => {
-      const requisito = row.original.ide_rcr;
+      // console.log(ide_rcr);
       // console.log(requisito);
-      // console.log(row)
+      // console.log(row);
       // const { setFieldValue, values } = useFormikContext();
       // const [files, setFiles] = useState<any[]>([]);
       // console.log(files);
@@ -29,7 +29,7 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
 
       // console.log(values);
       return (
-        <FileInput row={requisito} />
+        <FileInput row={row} />
         // <input
         //   type="file"
         //   accept=".pdf"
@@ -70,38 +70,38 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "des_doc_pad",
-  //   header: "Tipo Doc",
-  // },
-  // {
-  //   accessorKey: "des_doc",
-  //   header: "Descripción",
-  // },
-  // {
-  //   accessorKey: "1",
-  //   header: "N° Doc",
-  // },
-  // {
-  //   accessorKey: "2",
-  //   header: "Fch.Doc",
-  // },
-  // {
-  //   accessorKey: "3",
-  //   header: "Nombre Arch.",
-  // },
-  // {
-  //   accessorKey: "4 ",
-  //   header: "Tipo Arch",
-  // },
-  // {
-  //   accessorKey: "5 ",
-  //   header: "Cant Pag.",
-  // },
-  // {
-  //   accessorKey: "6",
-  //   header: "Peso",
-  // },
+  {
+    accessorKey: "des_doc_pad",
+    header: "Tipo Doc",
+  },
+  {
+    accessorKey: "des_doc",
+    header: "Descripción",
+  },
+  {
+    accessorKey: "1",
+    header: "N° Doc",
+  },
+  {
+    accessorKey: "2",
+    header: "Fch.Doc",
+  },
+  {
+    accessorKey: "name",
+    header: "Nombre Arch.",
+  },
+  {
+    accessorKey: "4 ",
+    header: "Tipo Arch",
+  },
+  {
+    accessorKey: "5 ",
+    header: "Cant Pag.",
+  },
+  {
+    accessorKey: "6",
+    header: "Peso",
+  },
 
   //   {
   //     id: "actions",

@@ -10,6 +10,8 @@ export interface Requisito {
   des_doc: string;
   des_doc_pad: string;
   fil_idx: number;
+  name?: string;
+  size?: number;
 }
 
 export interface Ruta {
