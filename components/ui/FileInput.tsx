@@ -12,13 +12,13 @@ const FileInput = React.memo(({ row }: any) => {
 
   return (
     <Input
+      data-ide_rcr={row}
       type="file"
       accept=".pdf"
       onChange={(event: any) => {
         // enviar data de requisitos modificadas
         // if (event.currentTarget.files.length > 0) {
         //   const selectedFile = event.currentTarget.files[0];
-
         //   console.log(selectedFile);
         //   const lfiles = [...files];
         //   lfiles.push(event.currentTarget.files[0]);
@@ -29,6 +29,7 @@ const FileInput = React.memo(({ row }: any) => {
         if (event.currentTarget.files.length > 0) {
           const selectedFile = event.currentTarget.files[0];
 
+          console.log(event.currentTarget["data-ide_rcr"]);
           //   const lfiles = [...files];
           //   lfiles.push(event.currentTarget.files[0]);
           //   setFiles(lfiles);

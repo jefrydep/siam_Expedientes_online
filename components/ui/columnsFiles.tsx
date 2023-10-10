@@ -18,7 +18,7 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
     id: "actions",
     // header: "Acciones",
     cell: ({ row }) => {
-      // const requisito = row.original;
+      const requisito = row.original.ide_rcr;
       // console.log(requisito);
       // console.log(row)
       // const { setFieldValue, values } = useFormikContext();
@@ -29,7 +29,7 @@ export const columnsFiles: ColumnDef<Requisito>[] = [
 
       // console.log(values);
       return (
-        <FileInput row={row} />
+        <FileInput row={requisito} />
         // <input
         //   type="file"
         //   accept=".pdf"
