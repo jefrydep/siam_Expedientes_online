@@ -29,10 +29,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as Yup from "yup";
 import { columnsFiles } from "@/components/ui/columnsFiles";
 import { DataTable } from "@/components/ui/data-table";
+import "react-circular-progressbar/dist/styles.css";
+import { CircularProgressbar } from "react-circular-progressbar";
+
+import Loader from "@/components/loader/Loader";
+import Swal from "sweetalert2";
 const validationSchema = Yup.object().shape({
   numDoc: Yup.string().required("Campo requerido"),
   ide_doc: Yup.string().required("Campo requerido"),
   ide_rut: Yup.string().required("Campo requerido"),
+  asu_nto: Yup.string().required("Campo requerido"),
 });
 const FilesPage = () => {
   const { data: session, status, update } = useSession();
@@ -60,10 +66,10 @@ const FilesPage = () => {
   const [routeFiles, setRouteFiles] = useState<Ruta[]>([]);
   const [requirements, setRequirements] = useState<Requisito[]>([]);
   const [uploadFiles, setUploadFiles] = useState(false);
-  const [formDataTemp, setFormDataTemp] = useState([]);
+  const [uploadPercentage, setUploadPercentage] = useState<number>(0);
   const currentDate = new Date();
   const route = useRouter();
-  const [filesDAta, setFilesDAta] = useState([]);
+
   const [files, setFiles] = useState<any[]>([]);
 
   const token = session?.user.access_token;
@@ -97,12 +103,12 @@ const FilesPage = () => {
 
   const dispatchRequirements = useAppDispatch();
   const handleSubmitFiles = async (values: any) => {
-    setFormDataTemp(values);
     console.log(values.files);
     // const uniqueFileNames = new Set(values.files.map((file: any) => file.name));
     // console.log(uniqueFileNames);
     // const filesName = new Set(files.map((file: any) => file.name));
     // console.log(filesName);
+    console.log(files);
     console.log(values);
     const formData = new FormData();
     formData.append("ano_eje", values.ano_eje);
@@ -124,12 +130,12 @@ const FilesPage = () => {
       fch_reg: currentDateFormated,
       ide_fil: null,
       ide_rcr: req.ide_rcr,
-      fil_idx: index,
+      fil_idx: req.fil_idx,
     }));
 
-    if (values.files) {
-      console.log(values.files);
-      values.files.forEach((file: any) => {
+    if (files) {
+      // console.log(values.files);
+      files.forEach((file: File) => {
         formData.append(`files[]`, file);
       });
     }
@@ -159,28 +165,30 @@ const FilesPage = () => {
     //     setUploadPercentage(uploadPercentage.toFixed(2));
 
     // });
-    // const response = await Axios({
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //     "Content-Type": "multipart/form-data",
-    //   },
-    //   method: "POST",
-    //   data: formData,
-    //   url: "", // Ruta
-    //   baseURL: "https://api.pagosvirtualesperu.com/tramite/peticion/files", // URL local
-    //   onUploadProgress: (progress: any) => {
-    //     const { total, loaded } = progress;
-    //     let totalSizeInMB: number;
-    //     // @ts-ignore
-    //     totalSizeInMB = total / 1000000;
-    //     const loadedSizeInMB = loaded / 1000000;
-    //     const uploadPercentage = (loadedSizeInMB / totalSizeInMB) * 100;
-    //     console.log(total, " - ", loadedSizeInMB, " - ", uploadPercentage);
-    //     //        setUploadPercentage(uploadPercentage.toFixed(2));
-    //   },
-    // });
-    // const res = response.data;
-    // console.log(res);
+    const response = await Axios({
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      method: "POST",
+      data: formData,
+      url: "", // Ruta
+      baseURL: "https://api.pagosvirtualesperu.com/tramite/peticion/files", // URL local
+      onUploadProgress: (progress: any) => {
+        const { total, loaded } = progress;
+        let totalSizeInMB: number;
+
+        // @ts-ignore
+        totalSizeInMB = total / 1000000;
+        const loadedSizeInMB = loaded / 1000000;
+        const uploadPercentage = (loadedSizeInMB / totalSizeInMB) * 100;
+        console.log(total, " - ", loadedSizeInMB, " - ", uploadPercentage);
+        //        setUploadPercentage(uploadPercentage.toFixed(2));
+        setUploadPercentage(uploadPercentage);
+      },
+    });
+    const res = response.data;
+    console.log(res);
   };
   const transformedData = dataDoc?.map((item) => ({
     value: item.ide_doc,
@@ -238,166 +246,181 @@ const FilesPage = () => {
   // aveces requisitos me trae null
   console.log(requirements);
   console.log(files);
+
   return (
     <div className="w-full h-screen overflow-y-auto">
-      <section className="bg-white border-b-2  px-2 py-1">
+      {/* {isLoading && <Loader />} */}
+      <section className="bg-white border-b-2  px-3 py-1">
         <h4 className="font-bold mb-4">MODULO NUEVOS EXPEDIENTES</h4>
-        <Tabs defaultValue="registro" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="registro">Registro</TabsTrigger>
 
-            <TabsTrigger value="archivos">subida de Archivos</TabsTrigger>
-          </TabsList>
-          <TabsContent value="registro">
-            <div>
-              {data && dataDoc && (
-                <Formik
-                  initialValues={{
-                    ano_eje: "2023",
-                    rucEje: data && data[0].ruc_eje,
-                    nomEje: data && data[0]?.nom_eje,
-                    ide_doc: "",
-                    numDoc: "",
-                    ide_rut: "",
-                    ideEje: ide_eje,
+        <div>
+          {data && dataDoc && (
+            <Formik
+              initialValues={{
+                ano_eje: "2023",
+                rucEje: data && data[0].ruc_eje,
+                nomEje: data && data[0]?.nom_eje,
+                ide_doc: "",
+                numDoc: "",
+                ide_rut: "",
+                ideEje: ide_eje,
 
-                    fch_reg: currentDateFormated,
-                    asu_nto: "",
-                    files: [],
+                fch_reg: currentDateFormated,
+                asu_nto: "",
+                // files: [],
 
-                    // doc_eje: "",
-                  }}
-                  onSubmit={handleSubmitFiles}
-                  validateOnBlur={false}
-                  validationSchema={validationSchema}
-                >
-                  {({ values, setFieldValue }) => (
-                    <Form>
-                      <section className="flex flex-col lg:grid lg:grid-cols-2 gap-4 justify-center ">
+                // doc_eje: "",
+              }}
+              onSubmit={handleSubmitFiles}
+              validateOnBlur={false}
+              validationSchema={validationSchema}
+            >
+              {({ values, setFieldValue }) => (
+                <Form>
+                  <section className="flex flex-col lg:grid lg:grid-cols-2 gap-4 justify-center ">
+                    <div>
+                      <Label className="mb-3  ">RUC</Label>
+                      <Field
+                        disabled
+                        type="text"
+                        name="rucEje"
+                        placeholder="RUC"
+                        as={Input}
+                      />
+                      {/* <ErrorMessage/> */}
+                    </div>
+                    <div>
+                      <Label className="mb-3  ">Entidad/Institución</Label>
+                      <Field
+                        disabled
+                        type="text"
+                        name="nomEje"
+                        placeholder="Entidad/institucion"
+                        as={Input}
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <Label className="mb-3  ">Documento</Label>
+                      <Select
+                        name="ide_doc"
+                        options={transformedData}
+                        isSearchable={true} // Habilita la búsqueda
+                        placeholder="Selecciona una opción"
+                        // onChange={(value: any) => setSelectedOption(value.label)}
+                        onChange={(option) =>
+                          setFieldValue("ide_doc", option?.value)
+                        }
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="ide_doc"
+                        className="text-red-500 font-bold text-sm"
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <Label className="mb-3  ">N° de documento</Label>
+                      <Field
+                        name="numDoc"
+                        type="number"
+                        placeholder="Documento"
+                        as={Input}
+                        onBlur={() =>
+                          handleNumberConvert(values.numDoc, setFieldValue)
+                        }
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="numDoc"
+                        className="text-red-500 font-bold text-sm"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <Label className="mb-3  ">Procedimiento</Label>
+                      <Select
+                        name="ide_rut"
+                        options={
+                          (docOptionsFormated && docOptionsFormated) || null
+                        }
+                        isSearchable={true} // Habilita la búsqueda
+                        placeholder="Buscar tipo de solicitud"
+                        onInputChange={handleDocTypes}
+                        // onChange={(value: any) => setSelectedOption(value.label)}
+                        onChange={(option) => {
+                          const selectedValue = option?.value;
+                          const asunto = option?.label;
+                          console.log(selectedValue);
+
+                          if (typeof selectedValue === "number") {
+                            setSelectedTypeProcess(selectedValue);
+                            console.log(selectedValue);
+                            setFieldValue("ide_rut", selectedValue);
+                            setFieldValue("asu_nto", asunto);
+                            handleRouteFiles(selectedValue);
+
+                            // setRouteFiles("requirement", requirements);
+                          }
+                        }}
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="ide_rut"
+                        className="text-red-500 font-bold text-sm"
+                      />
+                    </div>
+                  </section>
+                  <div className="mt-5 mb-5 border pb-3 px-2">
+                    <h4 className="font-bold text-center mb-3 ">
+                      Ruta del proceso
+                    </h4>
+                    <div className="flex gap-2 flex-wrap">
+                      {routeFiles.map((route, index) => (
+                        <div
+                          key={index}
+                          className="bg-white relative border-green-600 border min-w-[20rem] rounded-lg shadow-lg p-3 h-40"
+                        >
+                          <div className="absolute right-0 text-white font-bold top-0 rounded-bl-lg p-3 rounded-tr-lg bg-green-500">
+                            {index + 1}
+                          </div>
+                          <div className=" flex gap-3">
+                            <h4 className="text-orange-500">
+                              Tiempo estimado:
+                            </h4>
+                            <span>{route.nro_min}</span>
+                          </div>
+                          <div className="bg-green-500 text-sm text-white rounded-bl-lg rounded-br-lg p-1  absolute bottom-0 right-0 left-0">
+                            <span>{route.nom_amb} </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid w-full gap-1.5 mb-3">
+                    <Label htmlFor="message">Asunto</Label>
+                    <Field
+                      maxLength={200}
+                      as={Textarea}
+                      name="asu_nto"
+                      placeholder="Asunto"
+                    />
+                    <ErrorMessage
+                      component="div"
+                      name="ide_doc"
+                      className="text-red-500 font-bold text-sm"
+                    />
+                  </div>
+                  {requirements.length > 0 && (
+                    <section>
+                      <h4 className="font-bold mb-5 text-center">
+                        Subida de archivos
+                      </h4>
+                      <hr />
+                      <div>
+                        <h5 className="font-bold mb-3 mt-3">
+                          Adjuntar Archivos en formato PDF
+                        </h5>
                         <div>
-                          <Label className="mb-3  ">RUC</Label>
-                          <Field
-                            disabled
-                            type="text"
-                            name="rucEje"
-                            placeholder="RUC"
-                            as={Input}
-                          />
-                          {/* <ErrorMessage/> */}
-                        </div>
-                        <div>
-                          <Label className="mb-3  ">Entidad/Institución</Label>
-                          <Field
-                            disabled
-                            type="text"
-                            name="nomEje"
-                            placeholder="Entidad/institucion"
-                            as={Input}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <Label className="mb-3  ">Documento</Label>
-                          <Select
-                            name="ide_doc"
-                            options={transformedData}
-                            isSearchable={true} // Habilita la búsqueda
-                            placeholder="Selecciona una opción"
-                            // onChange={(value: any) => setSelectedOption(value.label)}
-                            onChange={(option) =>
-                              setFieldValue("ide_doc", option?.value)
-                            }
-                          />
-                          <ErrorMessage
-                            name="ide_doc"
-                            className="text-red-300 text-xs"
-                          />
-                        </div>
-
-                        <div>
-                          <Label className="mb-3  ">N° de documento</Label>
-                          <Field
-                            name="numDoc"
-                            type="number"
-                            placeholder="Documento"
-                            as={Input}
-                            onBlur={() =>
-                              handleNumberConvert(values.numDoc, setFieldValue)
-                            }
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <Label className="mb-3  ">Procedimiento</Label>
-                          <Select
-                            name="ide_rut"
-                            options={
-                              (docOptionsFormated && docOptionsFormated) || null
-                            }
-                            isSearchable={true} // Habilita la búsqueda
-                            placeholder="Buscar tipo de solicitud"
-                            onInputChange={handleDocTypes}
-                            // onChange={(value: any) => setSelectedOption(value.label)}
-                            onChange={(option) => {
-                              const selectedValue = option?.value;
-                              const asunto = option?.label;
-                              console.log(selectedValue);
-
-                              if (typeof selectedValue === "number") {
-                                setSelectedTypeProcess(selectedValue);
-                                console.log(selectedValue);
-                                setFieldValue("ide_rut", selectedValue);
-                                setFieldValue("asu_nto", asunto);
-                                handleRouteFiles(selectedValue);
-
-                                // setRouteFiles("requirement", requirements);
-                              }
-                            }}
-                          />
-                        </div>
-                      </section>
-                      <div className="mt-5 mb-5 border pb-3 px-2">
-                        <h4 className="font-bold text-center mb-3 ">
-                          Ruta del proceso
-                        </h4>
-                        <div className="flex gap-2 flex-wrap">
-                          {routeFiles.map((route, index) => (
-                            <div
-                              key={index}
-                              className="bg-white relative border-green-600 border min-w-[20rem] rounded-lg shadow-lg p-3 h-40"
-                            >
-                              <div className="absolute right-0 text-white font-bold top-0 rounded-bl-lg p-3 rounded-tr-lg bg-green-500">
-                                {index + 1}
-                              </div>
-                              <div className=" flex gap-3">
-                                <h4 className="text-orange-500">
-                                  Tiempo estimado:
-                                </h4>
-                                <span>{route.nro_min}</span>
-                              </div>
-                              <div className="bg-green-500 text-sm text-white rounded-bl-lg rounded-br-lg p-1  absolute bottom-0 right-0 left-0">
-                                <span>{route.nom_amb} </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="grid w-full gap-1.5 mb-3">
-                        <Label htmlFor="message">Asunto</Label>
-                        <Field
-                          maxLength={200}
-                          as={Textarea}
-                          name="asu_nto"
-                          placeholder="Asunto"
-                        />
-                      </div>
-                      <section>
-                        <h4 className="font-bold mb-5">Subida de archivos</h4>
-                        <hr />
-                        <div>
-                          <h5 className="font-bold">
-                            Adjuntar Archivos en formato PDF
-                          </h5>
-                          <div>
-                            {/* <table>
+                          {/* <table>
                               <thead>
                                 <tr>
                                   <th>Archivo</th>
@@ -485,113 +508,125 @@ const FilesPage = () => {
                                 </tr>
                               </tbody>
                             </table> */}
-                            <div className="w-full grid grid-cols-13 p-2 bg-green-400">
-                              <div className="col-span-2">Acciones</div>
-                              <div className="col-span-2">Tipo Doc</div>
-                              <div className="col-span-2">Descripción</div>
-                              <div>N° Doc</div>
-                              <div>Fch.Doc</div>
-                              <div className="col-span-2">Nombre Arch.</div>
-                              <div>Tipo Arch.</div>
-                              <div>Cant Pag.</div>
-                              <div>Peso</div>
-                            </div>
-                            {requirements.map((req, idx) => (
-                              <div className="w-full grid   gap-2 p-3 border text-sm  grid-cols-13">
-                                <Input
-                                  className="col-span-2"
-                                  type="file"
-                                  accept=".pdf"
-                                  data-ide_rcr={req.ide_rcr}
-                                  data-idx={idx}
-                                  onChange={(event: any) => {
-                                    if (event.currentTarget.files.length > 0) {
-                                      const selectedFile =
-                                        event.currentTarget.files[0];
-                                      const lfiles = [...files];
-                                      selectedFile.name;
-                                      let idx = lfiles.findIndex(
+                          <div className="w-full grid grid-cols-13 p-2  text-blue-950  font-bold bg-green-400">
+                            <div className="col-span-2">Acciones</div>
+                            <div className="col-span-2">Tipo Doc</div>
+                            <div className="col-span-2">Descripción</div>
+                            <div>N° Doc</div>
+                            <div>Fch.Doc</div>
+                            <div className="col-span-2">Nombre Arch.</div>
+                            <div>Tipo Arch.</div>
+                            <div>cantpag ;</div>
+                            <div>Peso</div>
+                          </div>
+                          {requirements.map((req, idx) => (
+                            <div className="w-full grid   font-semibold items-center  gap-2 p-3 border text-sm  grid-cols-13">
+                              <Input
+                                required
+                                className="col-span-2"
+                                type="file"
+                                accept=".pdf"
+                                data-ide_rcr={req.ide_rcr}
+                                data-idx={idx}
+                                onChange={(event: any) => {
+                                  if (event.currentTarget.files.length > 0) {
+                                    const selectedFile =
+                                      event.currentTarget.files[0];
+                                    const lfiles = [...files];
+                                    selectedFile.name;
+                                    let idx = lfiles.findIndex(
+                                      (file) => file.name === selectedFile.name
+                                    );
+                                    console.log(idx);
+                                    if (idx >= 0) {
+                                      let idx = requirements.findIndex(
                                         (file) =>
-                                          file.name === selectedFile.name
+                                          file.ide_rcr === selectedFile.ide_rcr
                                       );
                                       if (idx >= 0) {
-                                        let idx = requirements.findIndex(
-                                          (file) =>
-                                            file.ide_rcr ===
-                                            selectedFile.ide_rcr
-                                        );
-                                        if (idx >= 0) {
-                                          let lrequirements = [...requirements];
-                                          lrequirements[idx].fil_idx = idx;
-                                          setRequirements(lrequirements);
-                                        }
-                                      } else
-                                        idx = lfiles.push(selectedFile) - 1;
-
-                                      console.log("index", idx, lfiles.length);
-                                      setFiles(lfiles);
-
-                                      // Crear un nuevo arreglo de requisitos actualizado con nombre y peso del archivo
-                                      const updatedRequirements =
-                                        requirements.map((req, reqIdx) => {
-                                          if (reqIdx === Number(idx)) {
-                                            // Cuando idx coincide con el índice del requisito
-                                            return {
-                                              ...req,
-                                              name: selectedFile.name,
-                                              size: selectedFile.size,
-                                            };
-                                          }
-                                          return req;
-                                        });
-
-                                      setRequirements(updatedRequirements);
+                                        let lrequirements = [...requirements];
+                                        lrequirements[idx].fil_idx = idx;
+                                        setRequirements(lrequirements);
+                                      }
+                                    } else {
+                                      Swal.fire({
+                                        icon: "info",
+                                        text: "el archivo selecccionado ya se ha subido ( eliga otro diferente)",
+                                      });
+                                      idx = lfiles.push(selectedFile) - 1;
                                     }
-                                  }}
-                                />
 
-                                <div className="col-span-2">
-                                  {req.des_doc_pad}
-                                </div>
-                                <div className="col-span-2">{req.des_doc}</div>
-                                <div>N° Doc</div>
-                                <div>
-                                  <input type="text" />
-                                </div>
-                                <div className="col-span-2">{req.name}</div>
-                                <div>Tipo Arch.</div>
-                                <div>Cant Pag.</div>
-                                <div className="  bg-blue-500">{req.size}</div>
+                                    console.log("index", idx, lfiles.length);
+                                    setFiles(lfiles);
+
+                                    // Crear un nuevo arreglo de requisitos actualizado con nombre y peso del archivo
+                                    const updatedRequirements =
+                                      requirements.map((req, reqIdx) => {
+                                        if (reqIdx === Number(idx)) {
+                                          // Cuando idx coincide con el índice del requisito
+                                          return {
+                                            ...req,
+                                            fil_idx: idx,
+                                            name: selectedFile.name,
+                                            size: selectedFile.size,
+                                          };
+                                        }
+                                        return req;
+                                      });
+
+                                    setRequirements(updatedRequirements);
+                                  }
+                                }}
+                              />
+
+                              <div className="col-span-2">
+                                {req.des_doc_pad}
                               </div>
-                            ))}
+                              <div className="col-span-2">{req.des_doc}</div>
+                              <div>N° Doc</div>
+                              <div>
+                                <input className="w-full" type="text" />
+                              </div>
+                              <div className="col-span-2">{req.name}</div>
+                              <div>Tipo Arch.</div>
+                              <div>
+                                <div style={{ width: 43, height: 43 }}>
+                                  <CircularProgressbar
+                                    text={`${uploadPercentage}%`}
+                                    value={uploadPercentage}
+                                  />
+                                </div>
+                              </div>
+                              <div className="   ">{req.size}</div>
+                            </div>
+                          ))}
 
-                            {/* <DataTable
+                          {/* <DataTable
                               columns={columnsFiles}
                               data={requirements}
                             /> */}
-                            {/* <TableFiles /> */}
-                          </div>
+                          {/* <TableFiles /> */}
                         </div>
-                      </section>
-
-                      <div className="flex gap-3">
-                        <Button variant={"destructive"}>
-                          <X />
-                          Salir
-                        </Button>
-
-                        <Button type="submit">
-                          <ArrowRightCircle />
-                          Enviar
-                        </Button>
                       </div>
-                    </Form>
+                    </section>
                   )}
-                </Formik>
+
+                  <div className="flex gap-3">
+                    <Button variant={"destructive"}>
+                      <X />
+                      Salir
+                    </Button>
+
+                    <Button type="submit">
+                      <ArrowRightCircle />
+                      Enviar
+                    </Button>
+                  </div>
+                </Form>
               )}
-            </div>
-          </TabsContent>
-        </Tabs>
+            </Formik>
+          )}
+        </div>
       </section>
     </div>
   );
